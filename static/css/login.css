@@ -72,3 +72,9 @@ button {
 button:hover {
     background-color: #2980b9;
 }
+
+.error-message {
+    color: #ff4d4d;
+    text-align: center;
+    margin-top: 10px;
+}
