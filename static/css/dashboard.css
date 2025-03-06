@@ -138,10 +138,24 @@ h3 {
 }
 
 /* 待办事项 */
-.todo-input {
+.todo-card {
+    height: 400px;
+    /* 固定高度 */
     display: flex;
+    flex-direction: column;
+}
+
+.todo-scroll-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 1rem;
+}
+
+/* 调整输入框布局 */
+.todo-input {
+    display: grid;
+    grid-template-columns: 1fr 80px 40px;
     gap: 8px;
-    margin-bottom: 1rem;
 }
 
 #new-task {
@@ -254,4 +268,13 @@ h3 {
 .fade-in {
     opacity: 0;
     transform: translateY(10px);
+}
+
+.task-points-badge {
+    background: var(--accent-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-left: 8px;
 }

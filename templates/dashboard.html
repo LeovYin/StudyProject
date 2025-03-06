@@ -51,10 +51,14 @@
                     <div class="card todo-card">
                         <h3>📝 待办事项</h3>
                         <div class="todo-input">
-                            <input type="text" id="new-task" placeholder="添加新任务...">
+                            <input type="text" id="new-task" placeholder="事项名称" class="task-name">
+                            <input type="number" id="task-points" placeholder="积分" min="1" class="task-points">
                             <button id="add-task" class="icon-btn">➕</button>
                         </div>
-                        <ul id="todo-list"></ul>
+                        <!-- 添加滚动容器 -->
+                        <div class="todo-scroll-container">
+                            <ul id="todo-list"></ul>
+                        </div>
                     </div>
                 </div>
             </section>
