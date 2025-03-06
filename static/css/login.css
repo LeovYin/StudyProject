@@ -75,26 +75,11 @@ button {
     margin-top: 10px;
 }
 
-/* 定义动画 */
-@keyframes clipCircleIn {
-    0% {
-        clip-path: circle(0 at 50% 50%);
-    }
-
-    100% {
-        clip-path: circle(100% at 50% 50%);
-    }
-}
-
-/* 触发动画的类 */
-.button-animation {
-    animation: clipCircleIn 1s both;
-}
 
 /* 按钮基础样式 */
 .form-group button[type="submit"] {
     padding: 10px 20px;
-    background-color: #3a96d4;
+    background-color: #57bcff;
     /* 默认背景色 */
     color: white;
     border: none;
@@ -104,5 +89,6 @@ button {
 
 /* 悬停效果保留（可选） */
 .form-group button[type="submit"]:hover {
+    background-color: #63a0c979;
     cursor: pointer;
 }
