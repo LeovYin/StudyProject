@@ -25,7 +25,9 @@
             <div class="form-group">
                 <button type="submit" id="loginButton">登录</button>
             </div>
-            <p id="error-message" class="error-message" style="display: none;">密码输入错误，请重试。</p>
+            {% if error %}
+            <p id="error-message" class="error-message" >密码输入错误，请重试。</p>
+            {% endif %}
         </form>
     </div>
     <script src="../static/js/login.js"></script>
