@@ -69,12 +69,40 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #3a96d479;
-}
-
 .error-message {
     color: #ff4d4d;
     text-align: center;
     margin-top: 10px;
+}
+
+/* 定义动画 */
+@keyframes clipCircleIn {
+    0% {
+        clip-path: circle(0 at 50% 50%);
+    }
+
+    100% {
+        clip-path: circle(100% at 50% 50%);
+    }
+}
+
+/* 触发动画的类 */
+.button-animation {
+    animation: clipCircleIn 1s both;
+}
+
+/* 按钮基础样式 */
+.form-group button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #3a96d4;
+    /* 默认背景色 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 悬停效果保留（可选） */
+.form-group button[type="submit"]:hover {
+    cursor: pointer;
 }

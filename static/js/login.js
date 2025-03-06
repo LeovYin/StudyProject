@@ -14,3 +14,17 @@ document.getElementById('loginForm').addEventListener('submit', function (event)
         document.getElementById('error-message').style.display = 'block';
     }
 });
+
+// 获取登录按钮
+const loginButton = document.getElementById('loginButton');
+
+// 监听点击事件
+loginButton.addEventListener('click', (event) => {
+    // 添加动画类
+    loginButton.classList.add('button-animation');
+
+    // 动画结束后移除类（以便重复触发）
+    loginButton.addEventListener('animationend', () => {
+        loginButton.classList.remove('button-animation');
+    }, { once: true });
+});
