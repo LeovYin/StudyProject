@@ -12,7 +12,7 @@ body {
 
 /* 登录容器样式 */
 .login-container {
-    background-color: #ffffff;
+    background-color: #fedbf69d;
     width: 360px;
     padding: 40px;
     border-radius: 4px;
@@ -60,7 +60,7 @@ h2 {
 button {
     width: 100%;
     padding: 10px;
-    background-color: #3498db;
+    background-color: #63c1ff;
     border: none;
     border-radius: 4px;
     color: white;
@@ -70,7 +70,7 @@ button {
 }
 
 button:hover {
-    background-color: #2980b9;
+    background-color: #3a96d479;
 }
 
 .error-message {
