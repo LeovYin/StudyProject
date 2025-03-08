@@ -1,41 +1,19 @@
 /* 基础样式 */
 :root {
-    --primary-color: #4a90e2;
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --secondary-color: #ff6b6b;
-    /* 强调色（用于按钮/重要元素） */
-    --accent-color: #4ecdc4;
-    /* 辅助色（积分显示） */
-    --bg-color: #f8f9fa;
-    /* 背景色 */
-    --text-dark: #2d3436;
-    /* 主要文字 */
-    --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --primary-gradient: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%);
+    --primary-gradient: linear-gradient(135deg, #FFC3A0 0%, #FFAFBD 100%);
+    --secondary-color: #FF7EB9;
+    /* 强调色（按钮/交互元素） */
+    --accent-color: #FF758C;
+    /* 辅助色（积分/高亮） */
+    --bg-color: #FFF5F7;
+    /* 背景色（浅粉底纹） */
+    --text-dark: #5A3A4E;
+    /* 主文字（深粉紫色） */
+    --card-shadow: 0 8px 30px rgba(255, 122, 157, 0.15);
 
 }
-/* 全局加载状态 */
-button[disabled] {
-    opacity: 0.7;
-    cursor: not-allowed;
-}
 
-/* 错误提示 */
-.global-alert {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    background: #ff4444;
-    color: white;
-    border-radius: 5px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.16);
-    animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-    from { transform: translateX(100%); }
-    to { transform: translateX(0); }
-}
 body {
     margin: 0;
     font-family: 'Poppins', -apple-system, sans-serif;
@@ -58,9 +36,10 @@ h3 {
     justify-content: space-between;
     align-items: center;
     background: var(--primary-gradient);
-    color: white;
+    color: #fff;
     padding: 1rem 3rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 2px 4px rgba(90, 58, 78, 0.1);
 }
 
 .points-display {
@@ -189,13 +168,12 @@ h3 {
 
 /* 按钮样式 */
 .primary-btn {
-    background: var(--primary-color);
     color: white;
     border: none;
     padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    background: var(--secondary-color);
+    background: #ffa5a5;
     position: relative;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -243,6 +221,11 @@ h3 {
     background: rgba(246, 246, 246, 0.5);
     margin-bottom: 8px;
     animation: slideIn 0.3s ease;
+    transition: transform 0.2s ease;
+}
+
+.todo-list li:hover {
+    transform: translateX(4px);
 }
 
 @keyframes slideIn {
@@ -299,4 +282,127 @@ h3 {
     border-radius: 4px;
     font-size: 0.8rem;
     margin-left: 8px;
+}
+
+
+
+/* 任务名称自动填充剩余空间 */
+
+@media (max-width: 480px) {
+    .todo-list li {
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .task-points-badge {
+        flex: 0 0 50px;
+        font-size: 0.8em;
+    }
+}
+
+/* 选中状态指示 */
+.task-checkbox:checked {
+    accent-color: var(--secondary-color);
+}
+
+/* 删除按钮悬停效果 */
+.delete-btn:hover {
+    background: rgba(255, 126, 185, 0.1);
+    border-radius: 50%;
+}
+
+/* 添加按钮容器样式 */
+.add-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #FF9A9E 30%, #FF7EB9 100%);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow:
+        0 4px 6px rgba(255, 122, 157, 0.2),
+        inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.icon-btn {
+    width: 40px;
+    /* 固定尺寸保证正圆形 */
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    /* 圆形按钮 */
+    background: var(--secondary-color);
+    color: white;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(255, 126, 185, 0.3);
+}
+
+/* +号绝对居中 */
+.plus-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.8rem;
+    line-height: 1;
+    font-weight: 200;
+    transition: transform 0.3s ease;
+}
+
+
+.icon-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(255, 126, 185, 0.4);
+}
+
+.icon-btn:hover .plus-icon {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+/* 点击动效 */
+.icon-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* 按钮发光效果 */
+.icon-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-50%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(150%) rotate(45deg);
+    }
+}
+
+@media (max-width: 480px) {
+    .icon-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .plus-icon {
+        font-size: 1.6rem;
+    }
 }
