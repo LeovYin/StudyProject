@@ -62,7 +62,7 @@
                         <ul id="todo-list">
                             {% for task in tasks %}
                             <li>
-                                <input type="checkbox" class="task-checkbox" {{ 'checked' if task.is_completed else '' }} data-task-id="{{ task.id }}">
+                                <input type="checkbox" class="task-checkbox" {{ 'checked' if task.is_completed == '1' else '' }} data-task-id="{{ task.id }}">
                                 <span>{{task.title}}</span>
                                 <span class="task-points-badge">+{{task.points}}分</span>
                                 <button class="delete-btn">×</button>

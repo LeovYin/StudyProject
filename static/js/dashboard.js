@@ -31,36 +31,33 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 // 打卡功能
 document.getElementById('checkin-btn').addEventListener('click', function () {
     // 这里需要与后端API交互（示例仅前端演示）
-    const pointsDisplay = document.getElementById('current-points');
-    pointsDisplay.textContent = parseInt(pointsDisplay.textContent) + 5;
-    this.disabled = true;
+
     this.textContent = '✅ 已打卡';
 });
 
 
 // 新增完成任务积分逻辑
-todoList.addEventListener('change', (e) => {
-    if (e.target.classList.contains('task-checkbox')) {
-        const listItem = e.target.closest('li');
-        if (e.target.checked) {
-            // 获取积分值
-            const points = parseInt(listItem.querySelector('.task-points-badge').textContent.match(/\d+/)[0]);
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取所有带有'class="task-checkbox"'的元素
+    var checkboxes = document.querySelectorAll('.task-checkbox');
 
-            // 更新总积分
-            const pointsDisplay = document.getElementById('current-points');
-            pointsDisplay.textContent = parseInt(pointsDisplay.textContent) + points;
+    // 为每个复选框添加事件监听器
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            var taskId = this.getAttribute('data-task-id'); // 获取data-task-id属性
+            var isChecked = this.checked; // 获取复选框的选中状态
 
-            // 添加完成样式
-            listItem.style.opacity = '0.6';
-            listItem.querySelector('span:not(.task-points-badge)').style.textDecoration = 'line-through';
-        }
-    }
-});
-// 任务完成/删除
-todoList.addEventListener('click', (e) => {
-    if (e.target.tagName === 'INPUT') {
-        // 完成任务逻辑（可加积分）
-    } else if (e.target.classList.contains('delete-btn')) {
-        e.target.parentElement.remove();
-    }
+            // 创建一个AJAX请求
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/update-task-status', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log('Task status updated');
+                }
+            };
+            // 发送请求到后端，包含task ID和选中状态
+            xhr.send(JSON.stringify({ taskId: taskId, isChecked: isChecked }));
+        });
+    });
 });
