@@ -37,27 +37,7 @@ document.getElementById('checkin-btn').addEventListener('click', function () {
     this.textContent = '✅ 已打卡';
 });
 
-// 待办事项功能
-const todoList = document.getElementById('todo-list');
-document.getElementById('add-task').addEventListener('click', () => {
-    const taskName = document.getElementById('new-task');
-    const taskPoints = document.getElementById('task-points');
 
-    if (taskName.value.trim() && taskPoints.value > 0) {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <input type="checkbox" class="task-checkbox">
-            <span>${taskName.value}</span>
-            <span class="task-points-badge">+${taskPoints.value}分</span>
-            <button class="delete-btn">×</button>
-        `;
-        todoList.appendChild(li);
-
-        // 清空输入
-        taskName.value = '';
-        taskPoints.value = '';
-    }
-});
 // 新增完成任务积分逻辑
 todoList.addEventListener('change', (e) => {
     if (e.target.classList.contains('task-checkbox')) {

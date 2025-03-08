@@ -11,71 +11,83 @@
 </head>
 
 <body>
-    <!-- 头部 -->
-    <header class="header">
-        <div class="user-info">
-            <span>欢迎，<span id="username">小明</span></span>
-        </div>
-        <div class="points-display">
-            <i class="fas fa-coins"></i>
-            <span id="current-points">0</span> 积分
-        </div>
-    </header>
+<!-- 头部 -->
+<header class="header">
+    <div class="user-info">
+        <span>欢迎，<span id="username">{{ username }}</span></span>
+    </div>
+    <div class="points-display">
+        <i class="fas fa-coins"></i>
+        <span id="current-points">{{ current_points }}</span> 积分
+    </div>
+</header>
 
-    <div class="container">
-        <!-- 侧边栏 -->
-        <nav class="sidebar">
-            <button class="nav-btn active" data-target="dashboard">🏠 主界面</button>
-            <button class="nav-btn" data-target="wishlist">🎁 心愿单</button>
-            <button class="nav-btn" data-target="achievements">🏆 成就</button>
-        </nav>
+<div class="container">
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <button class="nav-btn active" data-target="dashboard">🏠 主界面</button>
+        <button class="nav-btn" data-target="wishlist">🎁 心愿单</button>
+        <button class="nav-btn" data-target="achievements">🏆 成就</button>
+    </nav>
 
-        <!-- 内容区域 -->
-        <main class="content">
-            <!-- 主界面 -->
-            <section id="dashboard" class="content-section active">
-                <div class="grid-container">
-                    <!-- 今日积分 -->
-                    <div class="card">
-                        <h3>📅 今日已得积分</h3>
-                        <div class="today-points">+5</div>
-                    </div>
+    <!-- 内容区域 -->
+    <main class="content">
+        <!-- 主界面 -->
+        <section id="dashboard" class="content-section active">
+            <div class="grid-container">
+                <!-- 今日积分 -->
+                <div class="card">
+                    <h3>📅 今日已得积分</h3>
+                    <div class="today-points"></div>
+                </div>
 
-                    <!-- 打卡 -->
-                    <div class="card">
-                        <h3>✅ 每日打卡</h3>
-                        <button id="checkin-btn" class="primary-btn">点击打卡</button>
-                    </div>
+                <!-- 打卡 -->
+                <div class="card">
+                    <h3>✅ 每日打卡</h3>
+                    <button id="checkin-btn" class="primary-btn">点击打卡</button>
+                </div>
 
-                    <!-- 待办事项 -->
-                    <div class="card todo-card">
-                        <h3>📝 待办事项</h3>
+                <!-- 待办事项 -->
+                <div class="card todo-card">
+                    <h3>📝 待办事项</h3>
+                    <form id="todo-form" action="/add-task" method="post">
                         <div class="todo-input">
-                            <input type="text" id="new-task" placeholder="事项名称" class="task-name">
-                            <input type="number" id="task-points" placeholder="积分" min="1" class="task-points">
-                            <button id="add-task" class="icon-btn">➕</button>
+                            <input type="text" name="task-name" id="new-task" placeholder="事项名称" class="task-name">
+                            <input type="number" name="task-points" id="task-points" placeholder="积分" min="1" class="task-points">
+                            <button type="submit" id="add-task" class="icon-btn">➕</button>
                         </div>
-                        <!-- 添加滚动容器 -->
-                        <div class="todo-scroll-container">
-                            <ul id="todo-list"></ul>
-                        </div>
+                    </form>
+                    <!-- 添加滚动容器 -->
+                    <div class="todo-scroll-container">
+                        <ul id="todo-list">
+                            {% for task in tasks %}
+                            <li>
+                                <input type="checkbox" class="task-checkbox" {{ 'checked' if task.is_completed else '' }} data-task-id="{{ task.id }}">
+                                <span>{{task.title}}</span>
+                                <span class="task-points-badge">+{{task.points}}分</span>
+                                <button class="delete-btn">×</button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- 心愿单（示例结构） -->
-            <section id="wishlist" class="content-section">
-                <!-- 后续填充内容 -->
-            </section>
+        <!-- 心愿单（示例结构） -->
+        <section id="wishlist" class="content-section">
+            <!-- 后续填充内容 -->
+        </section>
 
-            <!-- 成就界面（示例结构） -->
-            <section id="achievements" class="content-section">
-                <!-- 后续填充内容 -->
-            </section>
-        </main>
-    </div>
+        <!-- 成就界面（示例结构） -->
+        <section id="achievements" class="content-section">
+            <!-- 后续填充内容 -->
+        </section>
+    </main>
+</div>
 
-    <script src="../static/js/dashboard.js"></script>
+<script src="../static/js/dashboard.js"></script>
 </body>
 
 </html>

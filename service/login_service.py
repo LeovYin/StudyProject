@@ -4,6 +4,7 @@ import pymysql
 conn = pymysql.connect(host='localhost', port=3306, user='root', password="776868312",
                        database='studyproject', charset="utf8mb4", cursorclass=pymysql.cursors.DictCursor)
 
+
 def get_user(username, password):
     sql = "SELECT * FROM user WHERE username = %s AND password = %s"
     try:
@@ -17,6 +18,7 @@ def get_user(username, password):
     finally:
         cursor.close()
 
+
 def get_user_by_username(username):
     sql = "SELECT * FROM user WHERE username = %s"
     try:
@@ -29,4 +31,5 @@ def get_user_by_username(username):
         return type(e), e
     finally:
         cursor.close()
+
 
