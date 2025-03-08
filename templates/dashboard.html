@@ -95,8 +95,51 @@
             </section>
 
             <!-- 心愿单（示例结构） -->
+            <!-- 心愿单板块 -->
             <section id="wishlist" class="content-section">
-                <!-- 后续填充内容 -->
+                <div class="wishlist-header">
+                    <h2>🎯 我的心愿</h2>
+                    <button class="primary-btn" id="add-wish-btn">➕ 添加心愿</button>
+                </div>
+
+                <!-- 心愿列表 -->
+                <div class="wish-grid">
+                    <!-- 示例心愿项 -->
+                    <div class="wish-card">
+                        <div class="wish-content">
+                            <h3 class="wish-title">新书《设计心理学》</h3>
+                            <div class="wish-meta">
+                                <span class="wish-points">🎫 5000 积分</span>
+                                <div class="wish-actions">
+                                    <button class="icon-btn edit-btn">✏️</button>
+                                    <button class="icon-btn delete-btn">🗑️</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="redeem-btn">立即兑换</button>
+                    </div>
+                </div>
+
+                <!-- 添加心愿模态框 -->
+                <div class="modal" id="wish-modal">
+                    <div class="modal-content">
+                        <h3>✨ 添加新心愿</h3>
+                        <form id="wish-form">
+                            <div class="form-group">
+                                <label>心愿名称</label>
+                                <input type="text" id="wish-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>所需积分</label>
+                                <input type="number" id="wish-points" min="1" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="cancel-btn">取消</button>
+                                <button type="submit" class="primary-btn">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </section>
 
             <!-- 成就界面（示例结构） -->
@@ -107,6 +150,7 @@
     </div>
 
     <script src="../static/js/dashboard.js"></script>
+    <script src="../static/js/xinyuandan.js"></script>
 </body>
 
 </html>
