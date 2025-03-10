@@ -1,3 +1,18 @@
+// 确保文件正确加载
+console.log('脚本已加载');
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM已加载'); // 确保DOM就绪
+
+    const form = document.getElementById('todo-form');
+    if (!form) {
+        console.error('找不到表单元素！'); // 检查元素是否存在
+        return;
+    }
+
+    form.addEventListener('submit', handleSubmit); // 绑定事件
+});
+
 // 侧边栏切换功能
 document.querySelectorAll('.nav-btn').forEach(btn => {
     btn.addEventListener('click', function () {
@@ -29,33 +44,122 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 });
 
 // 打卡功能
-document.getElementById('checkin-btn').addEventListener('click', function () {
-    // 这里需要与后端API交互（示例仅前端演示）
-
-    this.textContent = '✅ 已打卡';
-});
-
-// 待办事项功能
-const todoList = document.getElementById('todo-list');
-document.getElementById('add-task').addEventListener('click', () => {
-    const taskName = document.getElementById('new-task');
-    const taskPoints = document.getElementById('task-points');
-
-    if (taskName.value.trim() && taskPoints.value > 0) {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <input type="checkbox" class="task-checkbox">
-            <span>${taskName.value}</span>
-            <span class="task-points-badge">+${taskPoints.value}分</span>
-            <button class="delete-btn">×</button>
-        `;
-        todoList.appendChild(li);
-
-        // 清空输入
-        taskName.value = '';
-        taskPoints.value = '';
+document.addEventListener('DOMContentLoaded', function() {
+    var checkinBtn = document.getElementById('checkin-btn');
+    // 检查是否已经打卡
+    if (sessionStorage.getItem('isCheckin') === 'true') {
+        checkinBtn.textContent = '✅ 已打卡';
+        checkinBtn.disabled = true;
     }
+
+    checkinBtn.addEventListener('click', function() {
+        // 发送 AJAX 请求到 Flask 后端
+        fetch('/checkin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({}) // 发送空对象作为请求体
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(data.result); // 使用 alert 显示 result
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        this.textContent = '✅ 已打卡';
+        checkinBtn.disabled = true; // 禁用按钮
+
+        // 存储打卡状态，以便页面刷新后仍然保持状态
+        sessionStorage.setItem('isCheckin', 'true');
+    });
 });
+
+// 表单提交监听
+function handleSubmit(e) {
+    e.preventDefault();
+    console.log('表单提交触发'); // 调试标记
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    // 发送请求
+    fetch('/add-task', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include' // 携带cookie
+    })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP错误 ${response.status}`);
+            return response.json();
+        })
+        .then(result => {
+            if (result.status === 'success') {
+                // 动态添加任务项
+                addTodoItem(formData.get('task-name'), formData.get('task-points'));
+                form.reset();
+            } else {
+                showError(result.message);
+            }
+        })
+        .catch(error => {
+            showError(error.message);
+        });
+}
+
+// 添加任务到列表
+function addTodoItem(name, points) {
+    const li = document.createElement('li');
+    li.innerHTML = `
+        <input type="checkbox" class="task-checkbox">
+        <span>${name}</span>
+        <span class="task-points-badge">+${points}分</span>
+        <button class="delete-btn">×</button>
+    `;
+    document.getElementById('todo-list').appendChild(li);
+}
+
+// 错误提示
+function showError(message) {
+    const errorEl = document.createElement('div');
+    errorEl.className = 'error-message';
+    errorEl.textContent = message;
+
+    document.body.appendChild(errorEl);
+    setTimeout(() => errorEl.remove(), 2000);
+}
+
+// 为每个删除按钮添加点击事件监听器
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.delete-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            // 获取对应复选框的data-task-id属性
+            var taskId = this.parentElement.querySelector('.task-checkbox').getAttribute('data-task-id');
+            // 发送AJAX请求到后端
+            fetch('/delete-task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ taskid: taskId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        this.parentElement.remove();
+                        console.log('Task ID printed on the server');
+                    } else {
+                        console.log('Error printing Task ID on the server');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    });
+});
+
 // 新增完成任务积分逻辑
 document.addEventListener('DOMContentLoaded', function () {
     // 获取所有带有'class="task-checkbox"'的元素
@@ -81,141 +185,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-// 在app.js中添加点击动画
-document.getElementById('add-task').addEventListener('click', function () {
-    this.classList.add('clicked');
-    setTimeout(() => this.classList.remove('clicked'), 200);
-});
-// app.js 新增逻辑
-
-// 按钮状态控制器
-const addButton = document.getElementById('add-task');
-
-// 模拟异步操作（实际需替换为真实API调用）
-const mockAPICall = () => new Promise((resolve, reject) => {
-    setTimeout(() => {
-        Math.random() > 0.1 ? resolve() : reject(); // 10%概率模拟失败
-    }, 1500);
-});
-
-// 按钮点击处理
-addButton.addEventListener('click', async () => {
-    const taskName = document.getElementById('new-task').value.trim();
-    const taskPoints = document.getElementById('task-points').value;
-
-    // 输入验证
-    if (!taskName || !taskPoints) {
-        showError('请填写完整信息');
-        return;
-    }
-
-    try {
-        // 进入加载状态
-        setButtonState('loading');
-
-        // 模拟API调用（实际需替换为fetch请求）
-        await mockAPICall();
-
-        // 添加任务到列表
-        addTodoItem(taskName, taskPoints);
-
-        // 显示成功反馈
-        setButtonState('success');
-
-        // 清空输入
-        clearInputs();
-    } catch (error) {
-        // 错误处理
-        setButtonState('error');
-        showError('添加失败，请重试');
-    }
-});
-
-// 状态控制函数
-function setButtonState(state) {
-    const states = ['loading', 'success', 'error'];
-    addButton.classList.remove(...states);
-
-    if (state) {
-        addButton.classList.add(state);
-        addButton.disabled = state === 'loading';
-    }
-}
-
-// 添加任务到列表
-function addTodoItem(name, points) {
-    const li = document.createElement('li');
-    li.innerHTML = `
-        <input type="checkbox" class="task-checkbox">
-        <span>${name}</span>
-        <span class="task-points-badge">+${points}分</span>
-        <button class="delete-btn">×</button>
-    `;
-    document.getElementById('todo-list').appendChild(li);
-}
-
-// 清空输入
-function clearInputs() {
-    document.getElementById('new-task').value = '';
-    document.getElementById('task-points').value = '';
-}
-
-// 错误提示
-function showError(message) {
-    const errorEl = document.createElement('div');
-    errorEl.className = 'error-message';
-    errorEl.textContent = message;
-
-    document.body.appendChild(errorEl);
-    setTimeout(() => errorEl.remove(), 2000);
-}
-
-// 新增CSS样式
-const style = document.createElement('style');
-style.textContent = `
-    .error-message {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #FF758C;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 30px;
-        box-shadow: 0 4px 15px rgba(255,117,140,0.3);
-        animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-        from { top: -50px; }
-        to { top: 20px; }
-    }
-
-    .add-btn.success .btn-icon {
-        transform: scale(0) rotate(180deg);
-    }
-
-    .add-btn.success::after {
-        content: '✓';
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        animation: checkmark 0.5s ease;
-    }
-
-    .add-btn.loading .btn-icon {
-        animation: spin 1s infinite linear;
-    }
-
-    @keyframes checkmark {
-        0% { opacity: 0; transform: translateX(-50%) scale(0); }
-        90% { transform: translateX(-50%) scale(1.2); }
-        100% { opacity: 1; transform: translateX(-50%) scale(1); }
-    }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);

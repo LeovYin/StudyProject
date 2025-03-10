@@ -13,144 +13,177 @@
 </head>
 
 <body>
-    <!-- 头部 -->
-    <header class="header">
-        <div class="user-info">
-            <span>欢迎，<span id="username">{{ username }}</span></span>
-        </div>
-        <div class="points-display">
-            <i class="fas fa-coins"></i>
-            <span id="current-points">{{ current_points }}</span> 积分
-        </div>
-    </header>
+<!-- 头部 -->
+<header class="header">
+    <div class="user-info">
+        <span>欢迎，<span id="username">{{ username }}</span></span>
+    </div>
+    <div class="points-display">
+        <i class="fas fa-coins"></i>
+        <span id="current-points">{{ current_points }}</span> 积分
+    </div>
+</header>
 
-    <div class="container">
-        <!-- 侧边栏 -->
-        <nav class="sidebar">
-            <button class="nav-btn active" data-target="dashboard">🏠 主界面</button>
-            <button class="nav-btn" data-target="wishlist">🎁 心愿单</button>
-            <button class="nav-btn" data-target="achievements">🏆 成就</button>
-        </nav>
+<div class="container">
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <button class="nav-btn active" data-target="dashboard">🏠 主界面</button>
+        <button class="nav-btn" data-target="wishlist">🎁 心愿单</button>
+        <button class="nav-btn" data-target="achievements">🏆 成就</button>
+        <button class="nav-btn" data-target="record">📝 记录</button>
 
-        <!-- 内容区域 -->
-        <main class="content">
-            <!-- 主界面 -->
-            <section id="dashboard" class="content-section active">
-                <div class="grid-container">
-                    <!-- 今日积分 -->
-                    <div class="card">
-                        <h3>📅 今日已得积分</h3>
-                        <div class="today-points"></div>
-                    </div>
+    </nav>
 
-                    <!-- 打卡 -->
-                    <div class="card">
-                        <h3>✅ 每日打卡</h3>
-                        <button id="checkin-btn" class="primary-btn">点击打卡</button>
-                    </div>
+    <!-- 内容区域 -->
+    <main class="content">
+        <!-- 主界面 -->
+        <section id="dashboard" class="content-section active">
+            <div class="grid-container">
+                <!-- 今日积分 -->
+                <div class="card">
+                    <h3>📅 今日已得积分</h3>
+                    <div class="today-points">{{ today_points }}</div>
+                </div>
 
-                    <!-- 待办事项 -->
-                    <div class="card todo-card">
-                        <h3>📝 待办事项</h3>
-                        <form id="todo-form" action="/add-task" method="post">
-                            <div class="todo-input">
-                                <input type="text" name="task-name" id="new-task" placeholder="事项名称" class="task-name">
-                                <input type="number" name="task-points" id="task-points" placeholder="积分" min="1"
-                                    class="task-points">
-                                <button id="add-task" class="icon-btn">
-                                    <span class="plus-icon">+</span>
-                                </button>
-                            </div>
-                        </form>
-                        <!-- 添加滚动容器 -->
-                        <div class="todo-scroll-container">
-                            <ul id="todo-list">
-                                <li>
-                                    <input type="checkbox" class="task-checkbox">
-                                    <span>睡觉</span>
-                                    <span class="task-points-badge">+3分</span>
-                                    <button class="delete-btn">×</button>
+                <!-- 打卡 -->
+                <div class="card">
+                    <h3>✅ 每日打卡</h3>
+                    <button id="checkin-btn" class="primary-btn">点击打卡</button>
+                </div>
 
-                                </li>
-                                <li>
-                                    <input type="checkbox" class="task-checkbox">
-                                    <span>打游戏</span>
-                                    <span class="task-points-badge">+1分</span>
-                                    <button class="delete-btn">×</button>
+                <!-- 待办事项 -->
+                <div class="card todo-card">
+                    <h3>📝 待办事项</h3>
+                    <form id="todo-form" action="/add-task" method="post">
+                        <div class="todo-input">
+                            <input type="text" name="task-name" id="new-task" placeholder="事项名称" class="task-name">
+                            <input type="number" name="task-points" id="task-points" placeholder="积分" min="1"
+                                   class="task-points">
+                            <button type="submit" id="add-task" class="icon-btn"> <!-- 明确为submit类型 -->
+                                <span class="plus-icon">+</span>
+                            </button>
+                        </div>
+                    </form>
+                    <!-- 添加滚动容器 -->
+                    <div class="todo-scroll-container">
+                        <ul id="todo-list">
+                            <!--                                <li>-->
+                            <!--                                    <input type="checkbox" class="task-checkbox">-->
+                            <!--                                    <span>睡觉</span>-->
+                            <!--                                    <span class="task-points-badge">+3分</span>-->
+                            <!--                                    <button class="delete-btn">×</button>-->
 
-                                </li>
-                                <!-- {% for task in tasks %}
+                            <!--                                </li>-->
+                            <!--                                <li>-->
+                            <!--                                    <input type="checkbox" class="task-checkbox">-->
+                            <!--                                    <span>打游戏</span>-->
+                            <!--                                    <span class="task-points-badge">+1分</span>-->
+                            <!--                                    <button class="delete-btn">×</button>-->
+
+                            <!--                                </li>-->
+                            {% for task in tasks %}
                             <li>
-                                <input type="checkbox" class="task-checkbox" {{ 'checked' if task.is_completed == '1' else '' }} data-task-id="{{ task.id }}">
+                                <input type="checkbox" class="task-checkbox" {{ 'checked' if task.is_completed == '1'
+                                else '' }} data-task-id="{{ task.id }}">
                                 <span>{{task.title}}</span>
                                 <span class="task-points-badge">+{{task.points}}分</span>
                                 <button class="delete-btn">×</button>
                             </li>
-                            {% endfor %} -->
-                            </ul>
+                            {% endfor %}
+                        </ul>
 
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 心愿单（示例结构） -->
+        <!-- 心愿单板块 -->
+        <section id="wishlist" class="content-section">
+            <div class="wishlist-header">
+                <h2>🎯 我的心愿</h2>
+                <button class="primary-btn" id="add-wish-btn">➕ 添加心愿</button>
+            </div>
+
+            <!-- 心愿列表 -->
+            <div class="wish-grid">
+                {% for wish in wishes %}
+                <div class="wish-card" data-wish-id="{{wish.id}}">
+                    <div class="wish-content">
+                        <h3 class="wish-title">{{wish.title}}</h3>
+                        <div class="wish-meta">
+                            <span class="wish-points">🎫 {{wish.required}}</span>
+                            <div class="wish-actions">
+                                <button class="icon-btn edit-btn">✏️</button>
+                                <button class="icon-btn delete-btn">🗑️</button>
+                            </div>
                         </div>
                     </div>
+                    <button class="redeem-btn">立即兑换</button>
                 </div>
-            </section>
+                {% endfor %}
+            </div>
 
-            <!-- 心愿单（示例结构） -->
-            <!-- 心愿单板块 -->
-            <section id="wishlist" class="content-section">
-                <div class="wishlist-header">
-                    <h2>🎯 我的心愿</h2>
-                    <button class="primary-btn" id="add-wish-btn">➕ 添加心愿</button>
-                </div>
-
-                <!-- 心愿列表 -->
-                <div class="wish-grid">
-                    <!-- 示例心愿项 -->
-                    <div class="wish-card">
-                        <div class="wish-content">
-                            <h3 class="wish-title">新书《设计心理学》</h3>
-                            <div class="wish-meta">
-                                <span class="wish-points">🎫 5000 积分</span>
-                                <div class="wish-actions">
-                                    <button class="icon-btn edit-btn">✏️</button>
-                                    <button class="icon-btn delete-btn">🗑️</button>
-                                </div>
-                            </div>
+            <!-- 添加心愿模态框 -->
+            <div class="modal" id="wish-modal">
+                <div class="modal-content">
+                    <h3>✨ 添加新心愿</h3>
+                    <form id="wish-form">
+                        <div class="form-group">
+                            <label>心愿名称</label>
+                            <input type="text" id="wish-name" required>
                         </div>
-                        <button class="redeem-btn">立即兑换</button>
-                    </div>
+                        <div class="form-group">
+                            <label>所需积分</label>
+                            <input type="number" id="wish-points" min="1" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn">取消</button>
+                            <button type="submit" class="primary-btn">保存</button>
+                        </div>
+                    </form>
                 </div>
-
-                <!-- 添加心愿模态框 -->
-                <div class="modal" id="wish-modal">
-                    <div class="modal-content">
-                        <h3>✨ 添加新心愿</h3>
-                        <form id="wish-form">
-                            <div class="form-group">
-                                <label>心愿名称</label>
-                                <input type="text" id="wish-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label>所需积分</label>
-                                <input type="number" id="wish-points" min="1" required>
-                            </div>
-                            <div class="form-actions">
-                                <button type="button" class="cancel-btn">取消</button>
-                                <button type="submit" class="primary-btn">保存</button>
-                            </div>
-                        </form>
-                    </div>
+            </div>
+            <!-- 编辑心愿的模态框 -->
+            <div class="modal" id="edit-wish-modal">
+                <div class="modal-content">
+                    <h3>编辑心愿</h3>
+                    <form id="edit-wish-form" class="form-group">
+                        <input type="hidden" id="edit-wish-id"/>
+                        <div class="form-group">
+                            <label for="edit-wish-title">心愿标题：</label>
+                            <input type="text" id="edit-wish-title" required/>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-wish-points">所需积分：</label>
+                            <input type="number" id="edit-wish-points" required/>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">保存</button>
+                            <button type="button" class="btn-cancel cancel-btn">取消</button>
+                        </div>
+                    </form>
                 </div>
-            </section>
+            </div>
 
-            <!-- 成就界面（示例结构） -->
-            <section id="achievements" class="content-section">
-                <!-- 后续填充内容 -->
-            </section>
-        </main>
-    </div>
 
-    <script src="../static/js/dashboard.js"></script>
-    <script src="../static/js/xinyuandan.js"></script>
+        </section>
+
+        <!-- 成就界面（示例结构） -->
+        <section id="achievements" class="content-section">
+            <!-- 后续填充内容 -->
+        </section>
+
+        <!-- 记录界面（示例结构） -->
+        <section id="record" class="content-section">
+            <span>helloworld</span>
+            <!-- 后续填充内容 -->
+        </section>
+    </main>
+</div>
+
+<script src="../static/js/dashboard.js"></script>
+<script src="../static/js/xinyuandan.js"></script>
 </body>
 
 </html>
