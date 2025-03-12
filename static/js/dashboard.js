@@ -45,13 +45,12 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 
 // 打卡功能
 document.addEventListener('DOMContentLoaded', function() {
-    var checkinBtn = document.getElementById('checkin-btn');
-    // 检查是否已经打卡
-    if (sessionStorage.getItem('isCheckin') === 'true') {
-        checkinBtn.textContent = '✅ 已打卡';
-        checkinBtn.disabled = true;
-    }
+    const checkinBtn = document.getElementById('checkin-btn');
+    const streakDayInfo = document.getElementById('streak-day-info');
+    const streakDay = parseInt(streakDayInfo.getAttribute('data-streak-day'), 10); // 将字符串转换为整数
+    const currentPointsElement = document.getElementById('current-points'); // 当前积分显示的元素
 
+    let currentPoints = parseInt(currentPointsElement.textContent.trim(), 10);
     checkinBtn.addEventListener('click', function() {
         // 发送 AJAX 请求到 Flask 后端
         fetch('/checkin', {
@@ -65,14 +64,25 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.status === 'success') {
                     alert(data.result); // 使用 alert 显示 result
+                    // 检查后端返回的数据中的success字段
+                        // 假设后端返回的data中包含了新的积分值
+                            currentPoints += data.checkin_point;
+                            console.log(currentPoints)
+                        updatePointsDisplay(); // 更新积分显示
+
                 }
             })
             .catch(error => console.error('Error:', error));
         this.textContent = '✅ 已打卡';
         checkinBtn.disabled = true; // 禁用按钮
+        streakDayInfo.textContent = `已经连续打卡${streakDay + 1}天`; // 使用模板字符串直接插入新的数值
 
-        // 存储打卡状态，以便页面刷新后仍然保持状态
-        sessionStorage.setItem('isCheckin', 'true');
+
+
+        // 积分显示更新函数
+        function updatePointsDisplay() {
+            currentPointsElement.textContent = currentPoints;
+        }
     });
 });
 
@@ -164,24 +174,60 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function () {
     // 获取所有带有'class="task-checkbox"'的元素
     var checkboxes = document.querySelectorAll('.task-checkbox');
+    const currentPointsElement = document.getElementById('current-points'); // 当前积分显示的元素
+
+    let currentPoints = parseInt(currentPointsElement.textContent.trim(), 10);
 
     // 为每个复选框添加事件监听器
     checkboxes.forEach(function (checkbox) {
         checkbox.addEventListener('change', function () {
             var taskId = this.getAttribute('data-task-id'); // 获取data-task-id属性
             var isChecked = this.checked; // 获取复选框的选中状态
+            const taskPoint = parseInt(this.getAttribute('data-task-point'));
 
-            // 创建一个AJAX请求
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/update-task-status', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    console.log('Task status updated');
-                }
-            };
-            // 发送请求到后端，包含task ID和选中状态
-            xhr.send(JSON.stringify({ taskId: taskId, isChecked: isChecked }));
+            console.log(taskPoint)
+            // 使用fetch发送请求
+            fetch('/update-task-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ taskId: taskId, isChecked: isChecked, taskPoint:taskPoint })
+            })
+                .then(response => {
+                    // 确保响应是成功的
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json(); // 解析JSON响应
+                })
+                .then(data => {
+                    console.log(data)
+
+                    // 检查后端返回的数据中的success字段
+                    if (data.status === 'success') {
+                        console.log('Task status updated');
+                        // 假设后端返回的data中包含了新的积分值
+                        if(data.isChecked){
+                            currentPoints += taskPoint;
+                        }else {
+                            currentPoints -= taskPoint;
+
+                        }
+                        updatePointsDisplay(); // 更新积分显示
+                    } else {
+                        console.log('Task status update failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+                });
         });
     });
+
+    // 积分显示更新函数
+    function updatePointsDisplay() {
+        currentPointsElement.textContent = currentPoints;
+    }
 });
+

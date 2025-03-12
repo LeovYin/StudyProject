@@ -51,27 +51,33 @@ def login():
     return render_template('login.html', error=False)
 
 
-
-
 @app.route('/dashboard')
 def dashboard():
     if 'username' not in session:
         return redirect('/login')
+
     username = session['username']
     is_checkin = is_checkin_today(username)
     success, tasks = get_tasks(username)
-    if not success:
-        tasks = []
-    # 获取当前积分
+    tasks = tasks if success else []
+
     success, user = get_user_by_username(username)
-    current_points = user['points']
+    current_points = user['points'] if success else 0
     today_points = count_today_points(username)
 
+    streak_day = user['streak_day'] if success else 0
     success, wishes = find_wish_by_username(username)
-    if not success:
-        wishes = []
+    wishes = wishes if success else []
+
+    success, achievements = get_achievements(username)
+    achievements = achievements if success else []
+
+    success, results = get_username_records(username)
+    records = results if success else []
+
     return render_template('dashboard.html', username=username, tasks=tasks, current_points=current_points,
-                           today_points=today_points, wishes=wishes, is_checkin=is_checkin)
+                           today_points=today_points, wishes=wishes, is_checkin=is_checkin, streak_day=streak_day,
+                           achievements=achievements, records=records)
 
 
 @app.route('/add-task', methods=['POST'])
@@ -118,14 +124,18 @@ def update_task_check():
     is_checked = data.get('isChecked')
     username = session['username']
     # 打印出task ID和是否选中
-    print(f'Task ID: {task_id}, Is Checked: {is_checked}')
+    print(data)
 
     # 这里可以添加更新任务状态的逻辑
     print(is_checked)
-    seccess, result = update_task_status(username, task_id, is_checked)
-    print(seccess, result)
+    success, result = update_task_status(username, task_id, is_checked)
+    print(success, result)
+    if not success:
+        return jsonify({'status': 'error', 'message': '更新任务状态失败！'})
+    if is_checked:
+        return jsonify({'status': 'success', 'message': 'Task status updated', 'isChecked': True})
     # 返回响应
-    return jsonify({'status': 'success', 'message': 'Task status updated'})
+    return jsonify({'status': 'success', 'message': 'Task status updated', 'isChecked': False})
 
 
 @app.route('/checkin', methods=['POST'])
@@ -141,9 +151,10 @@ def checkin():
         checkin_point = 2
     else:
         checkin_point = 3
+    print(username, checkin_point)
     is_checkin, result = checkin_service(username, checkin_point)
 
-    return jsonify(status='success', result=result)
+    return jsonify(status='success', result=result, checkin_point=checkin_point)
 
 
 @app.route('/delete-task', methods=['POST'])
@@ -213,15 +224,63 @@ def redeem_wish():
     username = session['username']
     points = data.get('points')
     wish_id = data.get('id')
-
+    wishName = data.get('wishName')
     # 确保积分是一个整数
     if not isinstance(points, int):
         return jsonify(status='fail', message='积分格式不正确')
 
-    success, result = redeem_wish_service(username, points, wish_id)
+    success, result = redeem_wish_service(username, points, wish_id, wishName)
+
     if not success:
         return jsonify(status='fail', message=result)
     return jsonify(status='success', message=result)
+
+
+# ==================== 记录路由 ====================
+
+@app.route('/add')
+def add_points():
+    print("add")
+    return jsonify()
+
+
+@app.route('/deduct')
+def deduct_points():
+    print("deduct")
+    return jsonify()
+
+
+@app.route('/weekly')
+def weekly_points():
+    print("weekly")
+    return jsonify()
+
+
+@app.route('/monthly')
+def monthly_points():
+    print("monthly")
+    return jsonify()
+
+
+# ==================== 成就功能路由 ====================
+@app.route('/claim-achievement', methods=['POST'])
+def claim_achievement():
+    username = session['username']
+    data = request.json
+    print(data)
+    points = data.get('points')
+    achievementName = data.get('achievementName')
+    achievementId = data.get('id')
+    conditions = data.get('condition')
+    # 获取当前积分
+    success, user = get_user_by_username(username)
+    current_points = user['points']
+    success, result = redeem_achievement_service(username, points, achievementId, achievementName, conditions)
+    print(result)
+    if not success:
+        return jsonify({'status': 'fail', "message": result, 'current_points': current_points}), 200
+    # 返回成功响应
+    return jsonify({'status': 'success', 'message': result, 'current_points': current_points}), 200
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>学习积分系统</title>
     <link rel="stylesheet" href="../static/css/dashboard.css">
+    <link rel="stylesheet" href="../static/css/record.css">
     <!-- 可选图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
@@ -48,7 +49,19 @@
                 <!-- 打卡 -->
                 <div class="card">
                     <h3>✅ 每日打卡</h3>
-                    <button id="checkin-btn" class="primary-btn">点击打卡</button>
+                    <button id="checkin-btn" class="primary-btn " data-is-checkin="{{ is_checkin }}"
+                            {% if is_checkin %}disabled{% endif %}>
+                        {% if is_checkin %}
+                        ✅ 已打卡
+                        {% else %}
+                        点击打卡
+                        {% endif %}
+                    </button>
+                    <!-- 显示连续打卡天数的元素 -->
+                    <p id="streak-day-info f" data-streak-day="{{streak_day}}" {% if not is_checkin
+                       %}style="display: none;" {% endif %}>已经连续打卡{{streak_day}}天</p>
+                    <p id="streak-day-info" data-streak-day="{{streak_day}}"></p>
+
                 </div>
 
                 <!-- 待办事项 -->
@@ -67,26 +80,13 @@
                     <!-- 添加滚动容器 -->
                     <div class="todo-scroll-container">
                         <ul id="todo-list">
-                            <!--                                <li>-->
-                            <!--                                    <input type="checkbox" class="task-checkbox">-->
-                            <!--                                    <span>睡觉</span>-->
-                            <!--                                    <span class="task-points-badge">+3分</span>-->
-                            <!--                                    <button class="delete-btn">×</button>-->
 
-                            <!--                                </li>-->
-                            <!--                                <li>-->
-                            <!--                                    <input type="checkbox" class="task-checkbox">-->
-                            <!--                                    <span>打游戏</span>-->
-                            <!--                                    <span class="task-points-badge">+1分</span>-->
-                            <!--                                    <button class="delete-btn">×</button>-->
-
-                            <!--                                </li>-->
                             {% for task in tasks %}
                             <li>
                                 <input type="checkbox" class="task-checkbox" {{ 'checked' if task.is_completed == '1'
-                                else '' }} data-task-id="{{ task.id }}">
+                                else '' }} data-task-id="{{ task.id }}" data-task-point="{{ task.points }}">
                                 <span>{{task.title}}</span>
-                                <span class="task-points-badge">+{{task.points}}分</span>
+                                <span class="task-points-badge"  >+{{task.points}}分</span>
                                 <button class="delete-btn">×</button>
                             </li>
                             {% endfor %}
@@ -171,19 +171,79 @@
 
         <!-- 成就界面（示例结构） -->
         <section id="achievements" class="content-section">
-            <!-- 后续填充内容 -->
+            <div id="unique-table-wrapper" class="table-wrapper">
+                <table class="achievements-table">
+                    <thead>
+                    <tr>
+                        <th class="extended-title-column">标题</th>
+                        <th class="compact-score-column">分数</th>
+                        <th class="compact-condition-column">进度</th>
+                        <th class="compact-claim-column">领取</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for achievement in achievements %}
+                    <tr>
+                        <td class="extended-title-cell">{{ achievement.title }}</td>
+                        <td class="compact-score-column">{{ achievement.point }}</td>
+                        <td class="compact-condition-column {% if achievement.conditions != '已满足条件' %}not-met{% endif %}">
+                            {{ achievement.conditions }}
+                        </td>
+                        <td class="compact-claim-cell">
+                            <button class="claim-button" data-achievement-id="{{ achievement.id }}" {% if achievement.is_success %}disabled{% endif %}>
+                                {% if achievement.is_success %}
+                                ✅ 已领取
+                                {% else %}
+                                领取
+                                {% endif %}
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <!-- 更多行数据 -->
+                    </tbody>
+                </table>
+            </div>
         </section>
 
-        <!-- 记录界面（示例结构） -->
+        <!-- 记录界面 -->
         <section id="record" class="content-section">
-            <span>helloworld</span>
-            <!-- 后续填充内容 -->
+            <!-- 按钮组 -->
+            <div class="button-group">
+                <button class="view-btn add-points-btn">查看加分情况</button>
+                <button class="view-btn deduct-points-btn">查看扣分情况</button>
+                <button class="view-btn weekly-points-btn">查看当周情况</button>
+                <button class="view-btn monthly-points-btn">查看当月情况</button>
+            </div>
+
+            <!-- 表格 -->
+            <table class="points-table">
+                <thead class="table-header">
+                <tr class="header-row">
+                    <th class="header-cell">名称</th>
+                    <th class="header-cell">类型</th>
+                    <th class="header-cell">分数</th>
+                    <th class="header-cell">时间</th>
+                </tr>
+                </thead>
+                <tbody class="table-body" id="data-container" data-records="{{ records }}">
+                <!-- 数据将在这里动态加载 -->
+                </tbody>
+
+            </table>
+            <!-- 翻页按钮 -->
+            <div class="box">
+                <div id="pagination" class="page fl"></div>
+            </div>
         </section>
     </main>
 </div>
 
 <script src="../static/js/dashboard.js"></script>
 <script src="../static/js/xinyuandan.js"></script>
+<script src="../static/js/achievement.js"></script>
+<script src="../static/js/record.js"></script>
+
 </body>
 
 </html>

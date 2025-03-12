@@ -1,0 +1,111 @@
+/* 基本样式 */
+.content-section {
+    background-color: #fff; /* 白色背景 */
+    color: #333; /* 深色文字 */
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* 按钮组样式 */
+.button-group {
+    margin-bottom: 20px;
+}
+
+.view-btn {
+    padding: 10px 15px;
+    margin-right: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* 不同按钮的颜色 */
+.add-points-btn {
+    background-color: #ffcccc; /* 粉色 */
+}
+
+.deduct-points-btn {
+    background-color: #ff9999; /* 较深的粉色 */
+}
+
+.weekly-points-btn {
+    background-color: #ffdd99; /* 橙色 */
+}
+
+.monthly-points-btn {
+    background-color: #ffff99; /* 黄色 */
+}
+
+/* 鼠标悬停时按钮颜色变化 */
+.view-btn:hover {
+    opacity: 0.8;
+}
+
+/* 表格基本样式 */
+.points-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-family: Arial, sans-serif;
+}
+
+/* 表头样式 */
+.table-header {
+    background-color: #ffcbcb; /* 粉色 */
+}
+
+.header-row {
+    /* 可以添加更多样式 if needed */
+}
+
+.header-cell {
+    padding: 10px;
+    text-align: left;
+    color: #fff; /* 白色文字 */
+}
+
+/* 表体样式 */
+.table-body {
+    /* 可以添加更多样式 if needed */
+}
+
+.body-row:nth-child(odd) {
+    background-color: #fff; /* 奇数行白色 */
+}
+
+.body-row:nth-child(even) {
+    background-color: #ffe5e5; /* 偶数行浅粉色 */
+}
+
+.body-cell {
+    padding: 10px;
+    border-bottom: 1px solid #ffcbcb; /* 粉色边框 */
+}
+
+/* 鼠标悬停效果 */
+.body-row:hover {
+    background-color: #ffcbcb; /* 悬停时粉色 */
+}
+
+.pagination {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.page-btn {
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ddd;
+    background-color: #f8f8f8;
+    cursor: pointer;
+}
+
+.page-btn:disabled {
+    cursor: not-allowed;
+    background-color: #eee;
+}
+
+.page-info {
+    font-size: 16px;
+}

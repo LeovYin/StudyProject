@@ -106,6 +106,28 @@ h3 {
     background: #f8f9fa;
 }
 
+.content-section {
+    display: none; /* 默认不显示 */
+    /* 其他样式 */
+}
+
+.content-section.active {
+    display: block; /* 激活时显示 */
+    /* 其他样式 */
+}
+
+.fade-out {
+    /* 淡出动画 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.fade-in {
+    /* 淡入动画 */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
 /* 卡片样式 */
 .card {
     background: white;
@@ -544,4 +566,67 @@ h3 {
 
 .btn-cancel:hover {
     background-color: #ec971f; /* 深一点的橙色 */
+}
+
+/*=============成就=============*/
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background-color: #eaeaea; /* 表头背景色 */
+}
+
+th, td {
+    text-align: left;
+    padding: 10px 15px;
+}
+
+th {
+    color: #555;
+}
+
+tbody tr:nth-child(odd) {
+    background-color: #f9f9f9; /* 间隔行背景色 */
+}
+
+.claim-button {
+    background-color: #ffcccb; /* 淡粉色按钮 */
+    color: #fff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.claim-button:hover {
+    background-color: #ff9999; /* 按钮鼠标悬停颜色 */
+}
+
+/* 禁用按钮的样式 */
+.claim-button:disabled {
+    background-color: #ccc; /* 灰色背景 */
+    color: #666; /* 深灰色文字 */
+    cursor: not-allowed; /* 禁止光标 */
+}
+
+/* 禁用按钮鼠标悬停的样式 */
+.claim-button:disabled:hover {
+    background-color: #ccc; /* 保持灰色背景 */
+}
+
+.extended-title-cell {
+    width: 40%; /* 标题栏占较大宽度，根据需要调整 */
+}
+
+/* 分数和领取栏保持相同的较小宽度 */
+.compact-score-column, .compact-claim-column, .compact-condition-column {
+    width: 20%; /* 分数和领取栏占较小宽度 */
+}
+
+/* 条件不满足时的样式 */
+.compact-condition-column.not-met {
+    color: red;
 }

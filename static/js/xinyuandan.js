@@ -118,18 +118,19 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
             editWishModal.style.display = 'flex';
         }
-
+        //兑换心愿单
         if (e.target.classList.contains('redeem-btn') && !e.target.disabled) {
             if (confirm(`确定要兑换 ${card.querySelector('.wish-title').textContent} 吗？`)) {
                 const wishId = card.getAttribute('data-wish-id');
                 const points = parseInt(card.querySelector('.wish-points').textContent.match(/\d+/)[0]);
+                const wishName = card.querySelector('.wish-title').textContent;
 
                 fetch('/redeem-wish', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({id: wishId, points: points})
+                    body: JSON.stringify({id: wishId, points: points, wishName:wishName})
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -138,7 +139,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                             updatePointsDisplay();
                             alert('心愿兑换成功');
                         } else {
-                            alert('心愿兑换失败');
+                            alert('心愿兑换失败，请试试刷新！');
                         }
                     })
                     .catch(error => {
