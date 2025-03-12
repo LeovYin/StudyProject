@@ -44,7 +44,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.status === 'success') {
+                    console.log('ddataxuan', data)
+                    if (data.status === 'success' && data.count < 9) {
                         const wishCard = document.createElement('div');
                         wishCard.className = 'wish-card';
                         wishCard.setAttribute('data-wish-id', data.wish_id); // 假设后端返回了心愿ID
@@ -67,6 +68,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                         wishModal.style.display = 'none';
                         wishForm.reset();
                         updatePointsDisplay();
+                    } else if (data.status === 'success' && data.count >= 9) {
+                        wishModal.style.display = 'none';
                     } else {
                         alert(data.message);
                     }
@@ -130,7 +133,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({id: wishId, points: points, wishName:wishName})
+                    body: JSON.stringify({id: wishId, points: points, wishName: wishName})
                 })
                     .then(response => response.json())
                     .then(data => {

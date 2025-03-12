@@ -90,7 +90,7 @@ def dashboard():
     return render_template('dashboard.html', username=username, tasks=tasks, current_points=current_points,
                            today_points=today_points, wishes=pagination_wishes_list,
                            wishes_pagination=wishes_pagination, is_checkin=is_checkin, streak_day=streak_day,
-                           achievements=achievements,  )
+                           achievements=achievements, )
 
 
 @app.route('/add-task', methods=['POST'])
@@ -193,10 +193,13 @@ def add_wish():
     title = data.get('name')
     points = data.get('points')
     username = session['username']
-
+    success, wishes = find_wish_by_username(username)
+    if not success:
+        wishes = []
+    count = len(wishes)
     success = create_wish(username, points, title)
     if success:
-        return jsonify(status='success', message='心愿添加成功')
+        return jsonify(status='success', message='心愿添加成功',count=count)
     return jsonify(status='fail', message='心愿添加失败')
 
 
@@ -328,10 +331,11 @@ def paginate():
     total = len(result)
     return jsonify({'data': data, 'total': total})
 
+
 @app.route('/wishes_paginate', methods=['GET'])
 def wishes_paginate():
     page = request.args.get('page', 1, type=int)
-    pageSize = 12
+    pageSize = 9
     start = (page - 1) * pageSize
     end = start + pageSize
     username = session['username']
@@ -341,6 +345,7 @@ def wishes_paginate():
     data = get_paginated_data(result, page, pageSize)
     total = len(result)
     return jsonify({'data': data, 'total': total})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)

@@ -109,22 +109,10 @@
             </div>
 
             <!-- 心愿列表 -->
-            <div class="wish-grid" id="wishes-data-container">
-<!--                {% for wish in wishes %}-->
-<!--                <div class="wish-card" data-wish-id="{{wish.id}}">-->
-<!--                    <div class="wish-content">-->
-<!--                        <h3 class="wish-title">{{wish.title}}</h3>-->
-<!--                        <div class="wish-meta">-->
-<!--                            <span class="wish-points">🎫 {{wish.required}}</span>-->
-<!--                            <div class="wish-actions">-->
-<!--                                <button class="icon-btn edit-btn">✏️</button>-->
-<!--                                <button class="icon-btn delete-btn">🗑️</button>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <button class="redeem-btn">立即兑换</button>-->
-<!--                </div>-->
-<!--                {% endfor %}-->
+            <div class="wish-grid" id="wishes-data-container"></div>
+            <!-- 翻页按钮 -->
+            <div class="wishes-pagination-container">
+                <div id="wishes-pagination" class="ui-pagination"></div>
             </div>
 
             <!-- 添加心愿模态框 -->
@@ -218,9 +206,13 @@
                 <button class="view-btn deduct-points-btn">查看扣分情况</button>
                 <button class="view-btn weekly-points-btn">查看当周情况</button>
                 <button class="view-btn monthly-points-btn">查看当月情况</button>
-                <form action="/submit-date" method="post">
-                    <label for="datepicker">选择日期：</label>
-                    <input type="date" id="datepicker" name="datepicker">
+                <form class="date-form" action="/submit-date" method="post">
+                    <label for="pre_datepicker">选择开始日期：</label>
+                    <input type="date" id="pre_datepicker" name="pre_datepicker">
+
+                    <label for="end_datepicker">选择结束日期：</label>
+                    <input type="date" id="end_datepicker" name="end_datepicker">
+
                     <input type="submit" value="提交">
                 </form>
             </div>

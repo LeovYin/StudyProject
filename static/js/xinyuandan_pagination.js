@@ -103,31 +103,26 @@
 }(jQuery, window, document);
 
 $(document).ready(function () {
-    let pageSize = 12;
+    let pageSize = 9;
     let currentPage = 1;
     let totalPage = 0;
     let paginationInstance = null;
-    let currentSearchType = null; // 当前搜索类型
 
     function initPagination() {
-        $('#pagination').pagination({
+        $('#wishes-pagination').pagination({
             totalPage: totalPage,
             currentPage: currentPage,
             callback: function (page) {
                 currentPage = page;
-                fetchData(page, currentSearchType);
+                fetchData(page);
             }
         });
-        paginationInstance = $('#pagination').data('pagination');
+        paginationInstance = $('#wishes-pagination').data('pagination');
     }
 
-    function fetchData(page, searchType) {
+    function fetchData(page) {
         let url = '/wishes_paginate';
         let data = {page: page};
-        if (searchType) {
-            url = '/search';
-            data.type = searchType;
-        }
         $.getJSON(url, data, function (response) {
             totalPage = Math.ceil(response.total / pageSize);
             if (!paginationInstance) {
@@ -142,7 +137,7 @@ $(document).ready(function () {
     function renderTable(data) {
         let html = '';
         data.forEach(function (item) {
-            html += 'div class="wish-card" data-wish-id="' + item.id + '">';
+            html += '<div class="wish-card" data-wish-id="' + item.id + '">';
             html += '<div class="wish-content">';
             html += '<h3 class="wish-title">' + item.title + '</h3>';
             html += '<div class="wish-meta">';
@@ -150,8 +145,8 @@ $(document).ready(function () {
             html += '<div class="wish-actions">';
             html += '<button class="icon-btn edit-btn">✏️</button>';
             html += '<button class="icon-btn delete-btn">🗑️</button>';
-            html +='</div></div></div>';
-            html +='<button class="redeem-btn">立即兑换</button>-';
+            html += '</div></div></div>';
+            html += '<button class="redeem-btn">立即兑换</button>';
             html += '</div>';
         });
         $('#wishes-data-container').html(html);
@@ -159,12 +154,11 @@ $(document).ready(function () {
     }
 
     function adjustTableHeight() {
-        var rows = $('#wishes-data-container tr').length;
+        var rows = $('#wishes-data-container .wish-card').length;
         var rowHeight = 40;
         var tableHeight = rows * rowHeight;
         $('.table_p').height(tableHeight);
     }
-
 
     fetchData(currentPage); // 初始加载
 });

@@ -142,7 +142,7 @@ $(document).ready(function () {
     function renderTable(data) {
         let html = '';
         data.forEach(function (item) {
-            html += '<tr>';
+            html += '<tr class="body-row">';
             html += '<td class="body-cell">' + item.task_title + '</td>';
             html += '<td class="body-cell">' + item.kind + '</td>';
             html += '<td class="body-cell">' + item.point + '</td>';
