@@ -103,7 +103,7 @@
 }(jQuery, window, document);
 
 $(document).ready(function () {
-    let pageSize = 9;
+    let pageSize = 15;
     let currentPage = 1;
     let totalPage = 0;
     let paginationInstance = null;

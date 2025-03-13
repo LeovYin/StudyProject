@@ -3,7 +3,7 @@ from werkzeug.exceptions import BadRequest, Unauthorized
 from flask_paginate import Pagination, get_page_args
 from service.basement_service import *
 from apscheduler.schedulers.background import BackgroundScheduler
-import datetime
+from datetime import datetime
 import pytz
 
 app = Flask(__name__)
@@ -199,7 +199,7 @@ def add_wish():
     count = len(wishes)
     success = create_wish(username, points, title)
     if success:
-        return jsonify(status='success', message='心愿添加成功',count=count)
+        return jsonify(status='success', message='心愿添加成功', count=count)
     return jsonify(status='fail', message='心愿添加失败')
 
 
@@ -290,8 +290,39 @@ def search():
         return jsonify({'total': total, 'data': [], 'message': data})
     data = get_paginated_data(records, page, pageSize)
     total = len(records)
-    print(data)
     return jsonify({'total': total, 'data': data, 'message': "读取" + search_type + "成功！"})
+
+
+@app.route('/records_date_range', methods=['GET'])
+def records_date_range():
+    username = session['username']
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    page = int(request.args.get('page', 1))
+    pageSize = 12  # 与前端保持一致
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    success, records = get_username_records(username)
+    message = ""
+    data = []
+    total = 0
+
+    if not success:
+        return jsonify({'total': total, 'data': data, 'message': records})
+
+    # 将字符串日期转换为datetime对象
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+    # 获取记录和总记录数
+    records, total = get_records_by_date_range(records, start_date, end_date)
+    if not success:
+        return jsonify(
+            {'total': total, 'data': data, 'message': total})
+    data = get_paginated_data(total, page, pageSize)
+    total = len(total)
+    return jsonify(
+        {'total': total, 'data': data, 'message': "读取" + str(start_date) + "到" + str(end_date) + "的记录成功！"})
 
 
 # ==================== 成就功能路由 ====================
@@ -335,7 +366,7 @@ def paginate():
 @app.route('/wishes_paginate', methods=['GET'])
 def wishes_paginate():
     page = request.args.get('page', 1, type=int)
-    pageSize = 9
+    pageSize = 15
     start = (page - 1) * pageSize
     end = start + pageSize
     username = session['username']

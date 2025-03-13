@@ -108,22 +108,39 @@ $(document).ready(function () {
     let totalPage = 0;
     let paginationInstance = null;
     let currentSearchType = null; // 当前搜索类型
+    let startDate = null;
+    let endDate =null;
 
+    // 初始化分页
     function initPagination() {
         $('#pagination').pagination({
             totalPage: totalPage,
             currentPage: currentPage,
             callback: function (page) {
                 currentPage = page;
-                fetchData(page, currentSearchType);
+                if (currentSearchType) {
+                    fetchData(page, currentSearchType);
+                } else if (startDate && endDate) {
+                    fetchDateRangeData(page, startDate, endDate);
+                } else {
+                    fetchData(page);
+                }
             }
         });
         paginationInstance = $('#pagination').data('pagination');
     }
 
+    $('.date-form').on('submit', function (e) {
+        e.preventDefault(); // 阻止表单默认提交行为
+        startDate = $('#pre_datepicker').val();
+        endDate = $('#end_datepicker').val();
+        fetchDateRangeData(1,startDate, endDate);
+    });1
+
     function fetchData(page, searchType) {
         let url = '/records_paginate';
         let data = {page: page};
+        console.log(data)
         if (searchType) {
             url = '/search';
             data.type = searchType;
@@ -138,6 +155,25 @@ $(document).ready(function () {
             renderTable(response.data);
         });
     }
+
+    function fetchDateRangeData(page, startDate, endDate) {
+        let url = '/records_date_range';
+        let data = {
+            start_date: startDate,
+            end_date: endDate,
+            page: page
+        };
+        $.getJSON(url, data, function (response) {
+            totalPage = Math.ceil(response.total / pageSize);
+            if (!paginationInstance) {
+                initPagination();
+            } else {
+                paginationInstance.setPage(page, totalPage); // 重置到第一页
+            }
+            renderTable(response.data);
+        });
+    }
+
 
     function renderTable(data) {
         let html = '';
