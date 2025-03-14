@@ -107,12 +107,14 @@ h3 {
 }
 
 .content-section {
-    display: none; /* 默认不显示 */
+    display: none;
+    /* 默认不显示 */
     /* 其他样式 */
 }
 
 .content-section.active {
-    display: block; /* 激活时显示 */
+    display: block;
+    /* 激活时显示 */
     /* 其他样式 */
 }
 
@@ -346,7 +348,7 @@ h3 {
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 4px 6px rgba(255, 122, 157, 0.2),
-    inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+        inset 0 -2px 4px rgba(255, 255, 255, 0.2);
     position: relative;
     overflow: hidden;
 }
@@ -542,7 +544,8 @@ h3 {
 /* 按钮样式 */
 .btn-save {
     padding: 8px 16px;
-    background-color: #5cb85c; /* 绿色，表示保存 */
+    background-color: #5cb85c;
+    /* 绿色，表示保存 */
     color: white;
     border: none;
     border-radius: 8px;
@@ -551,12 +554,14 @@ h3 {
 }
 
 .btn-save:hover {
-    background-color: #4cae4c; /* 深一点的绿色 */
+    background-color: #4cae4c;
+    /* 深一点的绿色 */
 }
 
 .btn-cancel {
     padding: 8px 16px;
-    background-color: #f0ad4e; /* 橙色，表示取消 */
+    background-color: #f0ad4e;
+    /* 橙色，表示取消 */
     color: white;
     border: none;
     border-radius: 8px;
@@ -565,7 +570,8 @@ h3 {
 }
 
 .btn-cancel:hover {
-    background-color: #ec971f; /* 深一点的橙色 */
+    background-color: #ec971f;
+    /* 深一点的橙色 */
 }
 
 /*=============成就=============*/
@@ -575,10 +581,12 @@ table {
 }
 
 thead {
-    background-color: #eaeaea; /* 表头背景色 */
+    background-color: #eaeaea;
+    /* 表头背景色 */
 }
 
-th, td {
+th,
+td {
     text-align: left;
     padding: 10px 15px;
 }
@@ -588,11 +596,13 @@ th {
 }
 
 tbody tr:nth-child(odd) {
-    background-color: #f9f9f9; /* 间隔行背景色 */
+    background-color: #f9f9f9;
+    /* 间隔行背景色 */
 }
 
 .claim-button {
-    background-color: #ffcccb; /* 淡粉色按钮 */
+    background-color: #ffcccb;
+    /* 淡粉色按钮 */
     color: #fff;
     border: none;
     padding: 8px 15px;
@@ -602,31 +612,159 @@ tbody tr:nth-child(odd) {
 }
 
 .claim-button:hover {
-    background-color: #ff9999; /* 按钮鼠标悬停颜色 */
+    background-color: #ff9999;
+    /* 按钮鼠标悬停颜色 */
 }
 
 /* 禁用按钮的样式 */
 .claim-button:disabled {
-    background-color: #ccc; /* 灰色背景 */
-    color: #666; /* 深灰色文字 */
-    cursor: not-allowed; /* 禁止光标 */
+    background-color: #ccc;
+    /* 灰色背景 */
+    color: #666;
+    /* 深灰色文字 */
+    cursor: not-allowed;
+    /* 禁止光标 */
 }
 
 /* 禁用按钮鼠标悬停的样式 */
 .claim-button:disabled:hover {
-    background-color: #ccc; /* 保持灰色背景 */
+    background-color: #ccc;
+    /* 保持灰色背景 */
 }
 
 .extended-title-cell {
-    width: 40%; /* 标题栏占较大宽度，根据需要调整 */
+    width: 40%;
+    /* 标题栏占较大宽度，根据需要调整 */
 }
 
 /* 分数和领取栏保持相同的较小宽度 */
-.compact-score-column, .compact-claim-column, .compact-condition-column {
-    width: 20%; /* 分数和领取栏占较小宽度 */
+.compact-score-column,
+.compact-claim-column,
+.compact-condition-column {
+    width: 20%;
+    /* 分数和领取栏占较小宽度 */
 }
 
 /* 条件不满足时的样式 */
 .compact-condition-column.not-met {
     color: red;
+}
+
+/* 今日积分模块样式 */
+.today-card {
+    background: linear-gradient(135deg, #FF9A9E 0%, #FF7EB9 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(255, 122, 157, 0.2);
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.today-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(255, 122, 157, 0.3);
+}
+
+.today-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.today-header h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.today-header i {
+    font-size: 2rem;
+    color: #FFD700;
+    /* 金币颜色 */
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.today-points {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 2px;
+    animation: float 3s ease-in-out infinite;
+    margin: 0;
+}
+
+/* 悬浮粒子特效 */
+.today-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent 25%,
+            rgba(255, 255, 255, 0.2) 50%,
+            transparent 75%);
+    animation: shine 3s infinite linear;
+    opacity: 0.3;
+}
+
+/* 关键帧动画 */
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes shine {
+    from {
+        transform: translateX(-50%) rotate(45deg);
+    }
+
+    to {
+        transform: translateX(150%) rotate(45deg);
+    }
+}
+
+/* 响应式适配 */
+@media (max-width: 768px) {
+    .today-card {
+        padding: 1rem;
+    }
+
+    .today-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .today-points {
+        font-size: 2.5rem;
+    }
+
+    .today-header i {
+        font-size: 1.8rem;
+    }
 }
