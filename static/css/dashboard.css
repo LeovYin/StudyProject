@@ -137,7 +137,7 @@ h3 {
     padding: 1.5rem;
     box-shadow: var(--card-shadow);
     margin-bottom: 1.5rem;
-    background: white;
+    background: rgba(255, 255, 255, 0.489);
     border-radius: 16px;
     padding: 1.8rem;
     box-shadow: var(--card-shadow);
@@ -164,8 +164,7 @@ h3 {
 
 /* 待办事项 */
 .todo-card {
-    height: 400px;
-    /* 固定高度 */
+
     display: flex;
     flex-direction: column;
 }
@@ -179,8 +178,8 @@ h3 {
 /* 调整输入框布局 */
 .todo-input {
     display: grid;
-    grid-template-columns: 1fr 80px 40px;
-    gap: 8px;
+    grid-template-columns: 1fr 60px 40px;
+    gap: 4px;
 }
 
 #new-task {
@@ -342,7 +341,7 @@ h3 {
     padding: 12px 20px;
     border: none;
     border-radius: 30px;
-    background: linear-gradient(135deg, #FF9A9E 30%, #FF7EB9 100%);
+    background: linear-gradient(135deg, #fbaaaa 30%, #f267d8 100%);
     color: white;
     font-weight: 500;
     cursor: pointer;
@@ -354,9 +353,9 @@ h3 {
 }
 
 .icon-btn {
-    width: 40px;
+    width: 30px;
     /* 固定尺寸保证正圆形 */
-    height: 40px;
+    height: 30px;
     border: none;
     border-radius: 50%;
     /* 圆形按钮 */
