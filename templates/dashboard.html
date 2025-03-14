@@ -165,7 +165,16 @@
                             <p id="streak-day-info" data-streak-day="{{streak_day}}"></p>
 
                         </div>
+                        <!-- 打卡 -->
+                        <div class="card">
+                            <h3>🔥 坚持天数</h3>
 
+                            <!-- 显示连续打卡天数的元素 -->
+                            <p id="streak-day-info f" data-streak-day="{{streak_day}}" {% if not is_checkin
+                                %}style="display: none;" {% endif %}>已经连续打卡{{streak_day}}天</p>
+                            <p id="streak-day-info" data-streak-day="{{streak_day}}"></p>
+
+                        </div>
 
                     </div>
             </section>
