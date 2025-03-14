@@ -715,19 +715,20 @@ def get_month_records(records: list) -> Tuple[bool, Union[List[Dict], str]]:
         return False, "本月用户没有记录"  # 失败时返回False和错误消息
 
 
-def get_records_by_date_range(records: list, start_date: datetime, end_date: datetime) -> Tuple[
+def get_records_by_date_range(records: list, start_date: datetime, end_date: datetime, selection: str) -> Tuple[
     bool, Union[List[Dict], str]]:
     if not records:
         return False, "用户没有更多记录"  # 失败时返回False和错误消息
+    if selection == "all":
+        print(selection)
     start_datetime = datetime.combine(start_date, time.min)
     end_datetime = datetime.combine(end_date, time.max)
-    print(type(start_date), type(end_date))
-    print(type(start_datetime), type(end_datetime))
+
     for record in records:
-        date_range_records = [record for record in records if start_datetime <= datetime.combine(record['finish_date'], time.max) <= end_datetime]
+        date_range_records = [record for record in records if
+                              start_datetime <= datetime.combine(record['finish_date'], time.max) <= end_datetime]
 
     if date_range_records:
-        print(date_range_records)
         return True, date_range_records  # 成功时返回True和记录列表
     else:
         return False, "日期之间用户没有记录"  # 失败时返回False和错误消息

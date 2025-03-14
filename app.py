@@ -298,6 +298,8 @@ def records_date_range():
     username = session['username']
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
+    selection = request.args.get('selection')
+    print(request.args)
     page = int(request.args.get('page', 1))
     pageSize = 12  # 与前端保持一致
     start = (page - 1) * pageSize
@@ -309,13 +311,13 @@ def records_date_range():
 
     if not success:
         return jsonify({'total': total, 'data': data, 'message': records})
-
     # 将字符串日期转换为datetime对象
+    print("\n", type(start_date), end_date, "!!!")
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
     end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
     # 获取记录和总记录数
-    records, total = get_records_by_date_range(records, start_date, end_date)
+    records, total = get_records_by_date_range(records, start_date, end_date, selection)
     if not success:
         return jsonify(
             {'total': total, 'data': data, 'message': total})

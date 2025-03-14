@@ -151,3 +151,24 @@
 .date-form input[type="submit"]:hover {
     background-color: #ff1493; /* 淡粉色按钮悬停效果 */
 }
+
+.date-form select {
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* 使宽度包括内边距和边框 */
+
+}
+
+/* 选择框特定样式 */
+#action_select {
+    background-color: #fffacd; /* 淡黄色背景 */
+    color: #333; /* 文字颜色 */
+    border-color: #ffd700; /* 边框颜色 */
+}
+
+/* 选择框选项样式 */
+#action_select option {
+    background-color: #fffacd;
+    color: #333;
+}

@@ -110,6 +110,7 @@ $(document).ready(function () {
     let currentSearchType = null; // 当前搜索类型
     let startDate = null;
     let endDate =null;
+    let selection = null;
 
     // 初始化分页
     function initPagination() {
@@ -134,7 +135,8 @@ $(document).ready(function () {
         e.preventDefault(); // 阻止表单默认提交行为
         startDate = $('#pre_datepicker').val();
         endDate = $('#end_datepicker').val();
-        fetchDateRangeData(1,startDate, endDate);
+        selection = $('#action_select').val();
+        fetchDateRangeData(1,startDate, endDate, selection);
     });1
 
     function fetchData(page, searchType) {
@@ -156,11 +158,12 @@ $(document).ready(function () {
         });
     }
 
-    function fetchDateRangeData(page, startDate, endDate) {
+    function fetchDateRangeData(page, startDate, endDate, selection) {
         let url = '/records_date_range';
         let data = {
             start_date: startDate,
             end_date: endDate,
+            selection: selection,
             page: page
         };
         $.getJSON(url, data, function (response) {
