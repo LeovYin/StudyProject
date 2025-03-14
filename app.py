@@ -1,9 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash, make_response
 from werkzeug.exceptions import BadRequest, Unauthorized
-
+from flask_paginate import Pagination, get_page_args
 from service.basement_service import *
 from apscheduler.schedulers.background import BackgroundScheduler
-import datetime
+from datetime import datetime
 import pytz
 
 app = Flask(__name__)
@@ -68,16 +68,29 @@ def dashboard():
     streak_day = user['streak_day'] if success else 0
     success, wishes = find_wish_by_username(username)
     wishes = wishes if success else []
+    wishes_page, wishes_per_page, wishes_offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
+    wishes_per_page = 12
+    wishes_total = len(wishes)
+    pagination_wishes_list = get_paginated_data(wishes, wishes_page, wishes_per_page)
+    wishes_pagination = Pagination(page=wishes_page, per_page=wishes_per_page, total=wishes_total,
+                                   css_framework='bootstrap4')
 
     success, achievements = get_achievements(username)
     achievements = achievements if success else []
 
     success, results = get_username_records(username)
     records = results if success else []
+    records_page, records_per_page, records_offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
+    records_per_page = 12
+    records_total = len(records)
+    pagination_records_list = get_paginated_data(records, records_page, records_per_page)
+    records_pagination = Pagination(page=records_page, per_page=records_per_page, total=records_total,
+                                    css_framework='bootstrap4')
 
     return render_template('dashboard.html', username=username, tasks=tasks, current_points=current_points,
-                           today_points=today_points, wishes=wishes, is_checkin=is_checkin, streak_day=streak_day,
-                           achievements=achievements, records=records)
+                           today_points=today_points, wishes=pagination_wishes_list,
+                           wishes_pagination=wishes_pagination, is_checkin=is_checkin, streak_day=streak_day,
+                           achievements=achievements, )
 
 
 @app.route('/add-task', methods=['POST'])
@@ -180,10 +193,13 @@ def add_wish():
     title = data.get('name')
     points = data.get('points')
     username = session['username']
-
+    success, wishes = find_wish_by_username(username)
+    if not success:
+        wishes = []
+    count = len(wishes)
     success = create_wish(username, points, title)
     if success:
-        return jsonify(status='success', message='心愿添加成功')
+        return jsonify(status='success', message='心愿添加成功', count=count)
     return jsonify(status='fail', message='心愿添加失败')
 
 
@@ -238,28 +254,77 @@ def redeem_wish():
 
 # ==================== 记录路由 ====================
 
-@app.route('/add')
-def add_points():
-    print("add")
-    return jsonify()
+@app.route('/search')
+def search():
+    username = session['username']
+    # 分页逻辑，假设每页显示pageSize条数据
+    page = request.args.get('page', 1, type=int)
+    pageSize = 12
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    success, records = get_username_records(username)
+    message = ""
+    data = []
+    total = 0
+
+    if not success:
+        return jsonify({'total': total, 'data': data, 'message': records})
+
+    search_type = request.args.get('type')
+
+    # 均未实现分页数据
+    if search_type == "add_points":
+        success, records = get_add_points_records(records)
+    elif search_type == "deduct_points":
+        success, records = get_deduct_points_records(records)
+    elif search_type == "weekly_points":
+        success, records = get_week_records(records)
+    elif search_type == "monthly_points":
+        success, records = get_month_records(records)
+    elif search_type == "all_records":
+        success = True
+        records = records
+    else:
+        return jsonify({'total': total, 'data': [], 'message': "search_type发生错误！"})
+    if not success:
+        return jsonify({'total': total, 'data': [], 'message': data})
+    data = get_paginated_data(records, page, pageSize)
+    total = len(records)
+    return jsonify({'total': total, 'data': data, 'message': "读取" + search_type + "成功！"})
 
 
-@app.route('/deduct')
-def deduct_points():
-    print("deduct")
-    return jsonify()
+@app.route('/records_date_range', methods=['GET'])
+def records_date_range():
+    username = session['username']
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    selection = request.args.get('selection')
+    print(request.args)
+    page = int(request.args.get('page', 1))
+    pageSize = 12  # 与前端保持一致
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    success, records = get_username_records(username)
+    message = ""
+    data = []
+    total = 0
 
+    if not success:
+        return jsonify({'total': total, 'data': data, 'message': records})
+    # 将字符串日期转换为datetime对象
+    print("\n", type(start_date), end_date, "!!!")
+    start_date = datetime.strptime(start_date, '%Y-%m-%d')
+    end_date = datetime.strptime(end_date, '%Y-%m-%d')
 
-@app.route('/weekly')
-def weekly_points():
-    print("weekly")
-    return jsonify()
-
-
-@app.route('/monthly')
-def monthly_points():
-    print("monthly")
-    return jsonify()
+    # 获取记录和总记录数
+    records, total = get_records_by_date_range(records, start_date, end_date, selection)
+    if not success:
+        return jsonify(
+            {'total': total, 'data': data, 'message': total})
+    data = get_paginated_data(total, page, pageSize)
+    total = len(total)
+    return jsonify(
+        {'total': total, 'data': data, 'message': "读取" + str(start_date) + "到" + str(end_date) + "的记录成功！"})
 
 
 # ==================== 成就功能路由 ====================
@@ -281,6 +346,38 @@ def claim_achievement():
         return jsonify({'status': 'fail', "message": result, 'current_points': current_points}), 200
     # 返回成功响应
     return jsonify({'status': 'success', 'message': result, 'current_points': current_points}), 200
+
+
+# ==================== 分页功能路由 ====================
+# 分页数据获取路由
+@app.route('/records_paginate', methods=['GET'])
+def paginate():
+    page = request.args.get('page', 1, type=int)
+    pageSize = 12
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    username = session['username']
+    success, result = get_username_records(username)
+    if not success:
+        result = []
+    data = get_paginated_data(result, page, pageSize)
+    total = len(result)
+    return jsonify({'data': data, 'total': total})
+
+
+@app.route('/wishes_paginate', methods=['GET'])
+def wishes_paginate():
+    page = request.args.get('page', 1, type=int)
+    pageSize = 15
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    username = session['username']
+    success, result = find_wish_by_username(username)
+    if not success:
+        result = []
+    data = get_paginated_data(result, page, pageSize)
+    total = len(result)
+    return jsonify({'data': data, 'total': total})
 
 
 if __name__ == '__main__':

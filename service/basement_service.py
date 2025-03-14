@@ -1,7 +1,7 @@
 import json
 
 import pymysql
-from datetime import datetime
+from datetime import datetime, timedelta, time
 from typing import Tuple, Union, List, Dict, Generator
 from contextlib import contextmanager
 from functools import wraps
@@ -640,6 +640,98 @@ def get_username_records(username: str) -> Tuple[bool, Union[List[Dict], str]]:
             else:
                 record['point'] = '+' + str(record['point'])
         return True, records
+
+
+def get_add_points_records(records: list) -> Tuple[bool, Union[List[Dict], str]]:
+    if not records:
+        return False, "用户没有更多记录"  # 失败时返回False和错误消息
+    add_points_records = []
+    for record in records:
+        if record['point'].startswith('+'):
+            add_points_records.append(record)
+
+    if add_points_records:
+        print(add_points_records)
+        return True, add_points_records  # 成功时返回True和记录列表
+    else:
+        return False, "本周用户加分项没有记录"  # 失败时返回False和错误消息
+
+
+def get_deduct_points_records(records: list) -> Tuple[bool, Union[List[Dict], str]]:
+    if not records:
+        return False, "用户没有更多记录"  # 失败时返回False和错误消息
+    deduct_points_records = []
+    for record in records:
+        if record['point'].startswith('-'):
+            deduct_points_records.append(record)
+
+    if deduct_points_records:
+        print(deduct_points_records)
+        return True, deduct_points_records  # 成功时返回True和记录列表
+    else:
+        return False, "本周用户加分项没有记录"  # 失败时返回False和错误消息
+
+
+def get_week_records(records: list) -> Tuple[bool, Union[List[Dict], str]]:
+    if not records:
+        return False, "用户没有更多记录"  # 失败时返回False和错误消息
+
+    today = datetime.today().date()
+    # 计算当前周一是哪天
+    monday = today - timedelta(days=today.weekday())
+    # 计算当前周日的日期
+    sunday = monday + timedelta(days=6)
+
+    # 筛选出当前周的记录
+    week_records = [record for record in records if monday <= record['finish_date'] <= sunday]
+
+    if week_records:
+        print(week_records)
+        return True, week_records  # 成功时返回True和记录列表
+    else:
+        return False, "本周用户当周没有记录"  # 失败时返回False和错误消息
+
+
+def get_month_records(records: list) -> Tuple[bool, Union[List[Dict], str]]:
+    if not records:
+        return False, "用户没有更多记录"  # 失败时返回False和错误消息
+
+    today = datetime.today().date()
+    # 计算当前月的第一天
+    first_day_of_month = today.replace(day=1)
+    # 计算当前月的最后一天
+    if today.month == 12:
+        last_day_of_month = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+    else:
+        last_day_of_month = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+
+    # 筛选出当前月的记录
+    month_records = [record for record in records if first_day_of_month <= record['finish_date'] <= last_day_of_month]
+
+    if month_records:
+        print(month_records)
+        return True, month_records  # 成功时返回True和记录列表
+    else:
+        return False, "本月用户没有记录"  # 失败时返回False和错误消息
+
+
+def get_records_by_date_range(records: list, start_date: datetime, end_date: datetime, selection: str) -> Tuple[
+    bool, Union[List[Dict], str]]:
+    if not records:
+        return False, "用户没有更多记录"  # 失败时返回False和错误消息
+    if selection == "all":
+        print(selection)
+    start_datetime = datetime.combine(start_date, time.min)
+    end_datetime = datetime.combine(end_date, time.max)
+
+    for record in records:
+        date_range_records = [record for record in records if
+                              start_datetime <= datetime.combine(record['finish_date'], time.max) <= end_datetime]
+
+    if date_range_records:
+        return True, date_range_records  # 成功时返回True和记录列表
+    else:
+        return False, "日期之间用户没有记录"  # 失败时返回False和错误消息
 
 
 # ==================== 分页任务 ====================

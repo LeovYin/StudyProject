@@ -109,3 +109,66 @@
 .page-info {
     font-size: 16px;
 }
+
+.date-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    background-color: #fdf5e6; /* 米白色背景 */
+    border-radius: 4px;
+    padding: 5px;
+}
+
+.date-form label {
+    margin: 0 5px;
+    font-size: 12px;
+    color: #8b4513; /* 深棕色文字 */
+}
+
+.date-form input[type="date"] {
+    padding: 5px;
+    margin: 0 2px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    background-color: #fffaf0; /* 淡粉色背景 */
+}
+
+.date-form input[type="submit"] {
+    padding: 5px 10px;
+    margin-left: 5px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #fff;
+    background-color: #ff69b4; /* 淡粉色按钮 */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.date-form input[type="submit"]:hover {
+    background-color: #ff1493; /* 淡粉色按钮悬停效果 */
+}
+
+.date-form select {
+    padding: 6px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* 使宽度包括内边距和边框 */
+
+}
+
+/* 选择框特定样式 */
+#action_select {
+    background-color: #fffacd; /* 淡黄色背景 */
+    color: #333; /* 文字颜色 */
+    border-color: #ffd700; /* 边框颜色 */
+}
+
+/* 选择框选项样式 */
+#action_select option {
+    background-color: #fffacd;
+    color: #333;
+}

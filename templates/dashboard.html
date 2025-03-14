@@ -6,11 +6,14 @@
     <title>学习积分系统</title>
     <link rel="stylesheet" href="../static/css/dashboard.css">
     <link rel="stylesheet" href="../static/css/record.css">
+    <link rel="stylesheet" href="../static/css/pagination.css">
     <!-- 可选图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- 添加在原有图标库下方 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/emoji-mart/3.0.0/emoji-mart.css" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+
 </head>
 
 <body>
@@ -106,22 +109,10 @@
             </div>
 
             <!-- 心愿列表 -->
-            <div class="wish-grid">
-                {% for wish in wishes %}
-                <div class="wish-card" data-wish-id="{{wish.id}}">
-                    <div class="wish-content">
-                        <h3 class="wish-title">{{wish.title}}</h3>
-                        <div class="wish-meta">
-                            <span class="wish-points">🎫 {{wish.required}}</span>
-                            <div class="wish-actions">
-                                <button class="icon-btn edit-btn">✏️</button>
-                                <button class="icon-btn delete-btn">🗑️</button>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="redeem-btn">立即兑换</button>
-                </div>
-                {% endfor %}
+            <div class="wish-grid" id="wishes-data-container"></div>
+            <!-- 翻页按钮 -->
+            <div class="wishes-pagination-container">
+                <div id="wishes-pagination" class="ui-pagination"></div>
             </div>
 
             <!-- 添加心愿模态框 -->
@@ -210,10 +201,27 @@
         <section id="record" class="content-section">
             <!-- 按钮组 -->
             <div class="button-group">
+                <button class="view-btn all-records-btn">显示全部数据</button>
                 <button class="view-btn add-points-btn">查看加分情况</button>
                 <button class="view-btn deduct-points-btn">查看扣分情况</button>
                 <button class="view-btn weekly-points-btn">查看当周情况</button>
                 <button class="view-btn monthly-points-btn">查看当月情况</button>
+                <form class="date-form" action="/submit-date" method="post">
+                    <label for="pre_datepicker">选择开始日期：</label>
+                    <input type="date" id="pre_datepicker" name="pre_datepicker">
+
+                    <label for="end_datepicker">选择结束日期：</label>
+                    <input type="date" id="end_datepicker" name="end_datepicker">
+
+                    <label for="action_select">选择操作：</label>
+                    <select id="action_select" name="action">
+                        <option value="all">全部</option>
+                        <option value="increase">增加</option>
+                        <option value="decrease">减少</option>
+                    </select>
+
+                    <input type="submit" value="提交">
+                </form>
             </div>
 
             <!-- 表格 -->
@@ -226,15 +234,15 @@
                     <th class="header-cell">时间</th>
                 </tr>
                 </thead>
-                <tbody class="table-body" id="data-container" data-records="{{ records }}">
+                <tbody class="table-body" id="data-container" >
                 <!-- 数据将在这里动态加载 -->
                 </tbody>
-
             </table>
             <!-- 翻页按钮 -->
-            <div class="box">
-                <div id="pagination" class="page fl"></div>
+            <div class="pagination-container">
+                <div id="pagination" class="ui-pagination"></div>
             </div>
+
         </section>
     </main>
 </div>
@@ -243,7 +251,7 @@
 <script src="../static/js/xinyuandan.js"></script>
 <script src="../static/js/achievement.js"></script>
 <script src="../static/js/record.js"></script>
-
+<script src="../static/js/xinyuandan_pagination.js"></script>
 </body>
 
 </html>

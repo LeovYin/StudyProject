@@ -103,50 +103,26 @@
 }(jQuery, window, document);
 
 $(document).ready(function () {
-    let pageSize = 12;
+    let pageSize = 15;
     let currentPage = 1;
     let totalPage = 0;
     let paginationInstance = null;
-    let currentSearchType = null; // 当前搜索类型
-    let startDate = null;
-    let endDate =null;
-    let selection = null;
 
-    // 初始化分页
     function initPagination() {
-        $('#pagination').pagination({
+        $('#wishes-pagination').pagination({
             totalPage: totalPage,
             currentPage: currentPage,
             callback: function (page) {
                 currentPage = page;
-                if (currentSearchType) {
-                    fetchData(page, currentSearchType);
-                } else if (startDate && endDate) {
-                    fetchDateRangeData(page, startDate, endDate);
-                } else {
-                    fetchData(page);
-                }
+                fetchData(page);
             }
         });
-        paginationInstance = $('#pagination').data('pagination');
+        paginationInstance = $('#wishes-pagination').data('pagination');
     }
 
-    $('.date-form').on('submit', function (e) {
-        e.preventDefault(); // 阻止表单默认提交行为
-        startDate = $('#pre_datepicker').val();
-        endDate = $('#end_datepicker').val();
-        selection = $('#action_select').val();
-        fetchDateRangeData(1,startDate, endDate, selection);
-    });1
-
-    function fetchData(page, searchType) {
-        let url = '/records_paginate';
+    function fetchData(page) {
+        let url = '/wishes_paginate';
         let data = {page: page};
-        console.log(data)
-        if (searchType) {
-            url = '/search';
-            data.type = searchType;
-        }
         $.getJSON(url, data, function (response) {
             totalPage = Math.ceil(response.total / pageSize);
             if (!paginationInstance) {
@@ -158,70 +134,30 @@ $(document).ready(function () {
         });
     }
 
-    function fetchDateRangeData(page, startDate, endDate, selection) {
-        let url = '/records_date_range';
-        let data = {
-            start_date: startDate,
-            end_date: endDate,
-            selection: selection,
-            page: page
-        };
-        $.getJSON(url, data, function (response) {
-            totalPage = Math.ceil(response.total / pageSize);
-            if (!paginationInstance) {
-                initPagination();
-            } else {
-                paginationInstance.setPage(page, totalPage); // 重置到第一页
-            }
-            renderTable(response.data);
-        });
-    }
-
-
     function renderTable(data) {
         let html = '';
         data.forEach(function (item) {
-            html += '<tr class="body-row">';
-            html += '<td class="body-cell">' + item.task_title + '</td>';
-            html += '<td class="body-cell">' + item.kind + '</td>';
-            html += '<td class="body-cell">' + item.point + '</td>';
-            html += '<td class="body-cell">' + item.finish_time + '</td>';
-            html += '</tr>';
+            html += '<div class="wish-card" data-wish-id="' + item.id + '">';
+            html += '<div class="wish-content">';
+            html += '<h3 class="wish-title">' + item.title + '</h3>';
+            html += '<div class="wish-meta">';
+            html += '<span class="wish-points">🎫' + item.required + '</span>';
+            html += '<div class="wish-actions">';
+            html += '<button class="icon-btn edit-btn">✏️</button>';
+            html += '<button class="icon-btn delete-btn">🗑️</button>';
+            html += '</div></div></div>';
+            html += '<button class="redeem-btn">立即兑换</button>';
+            html += '</div>';
         });
-        $('#data-container').html(html);
+        $('#wishes-data-container').html(html);
         adjustTableHeight();
     }
 
     function adjustTableHeight() {
-        var rows = $('#data-container tr').length;
+        var rows = $('#wishes-data-container .wish-card').length;
         var rowHeight = 40;
         var tableHeight = rows * rowHeight;
         $('.table_p').height(tableHeight);
-    }
-
-    $('.view-btn.add-points-btn').on('click', function () {
-        performSearch('add_points');
-    });
-
-    $('.view-btn.deduct-points-btn').on('click', function () {
-        performSearch('deduct_points');
-    });
-
-    $('.view-btn.weekly-points-btn').on('click', function () {
-        performSearch('weekly_points');
-    });
-
-    $('.view-btn.monthly-points-btn').on('click', function () {
-        performSearch('monthly_points');
-    });
-
-    $('.view-btn.all-records-btn').on('click', function () {
-        performSearch('all_records');
-    });
-
-    function performSearch(type) {
-        currentSearchType = type; // 设置当前搜索类型
-        fetchData(1, type); // 从第一页开始搜索
     }
 
     fetchData(currentPage); // 初始加载
