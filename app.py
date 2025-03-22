@@ -58,39 +58,24 @@ def dashboard():
 
     username = session['username']
     is_checkin = is_checkin_today(username)
-    success, tasks = get_tasks(username)
-    tasks = tasks if success else []
+    success, tasks = get_tasks(username, "day")
+    day_tasks = tasks if success else []
+    print(day_tasks)
+    success, tasks = get_tasks(username, "week")
+    week_tasks = tasks if success else []
+    success, tasks = get_tasks(username, "month")
+    month_tasks = tasks if success else []
 
     success, user = get_user_by_username(username)
     current_points = user['points'] if success else 0
     today_points = count_today_points(username)
 
     streak_day = user['streak_day'] if success else 0
-    success, wishes = find_wish_by_username(username)
-    wishes = wishes if success else []
-    wishes_page, wishes_per_page, wishes_offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
-    wishes_per_page = 12
-    wishes_total = len(wishes)
-    pagination_wishes_list = get_paginated_data(wishes, wishes_page, wishes_per_page)
-    wishes_pagination = Pagination(page=wishes_page, per_page=wishes_per_page, total=wishes_total,
-                                   css_framework='bootstrap4')
+    all_day = user['all_day'] if success else 0
 
-    success, achievements = get_achievements(username)
-    achievements = achievements if success else []
-
-    success, results = get_username_records(username)
-    records = results if success else []
-    records_page, records_per_page, records_offset = get_page_args(page_parameter='page', per_page_parameter='per_page')
-    records_per_page = 12
-    records_total = len(records)
-    pagination_records_list = get_paginated_data(records, records_page, records_per_page)
-    records_pagination = Pagination(page=records_page, per_page=records_per_page, total=records_total,
-                                    css_framework='bootstrap4')
-
-    return render_template('dashboard.html', username=username, tasks=tasks, current_points=current_points,
-                           today_points=today_points, wishes=pagination_wishes_list,
-                           wishes_pagination=wishes_pagination, is_checkin=is_checkin, streak_day=streak_day,
-                           achievements=achievements, )
+    return render_template('dashboard.html', username=username, day_tasks=day_tasks, month_tasks=month_tasks,
+                           week_tasks=week_tasks, current_points=current_points, today_points=today_points,
+                           is_checkin=is_checkin, streak_day=streak_day, all_day=all_day)
 
 
 @app.route('/add-task', methods=['POST'])
@@ -104,11 +89,11 @@ def add_task():
 
         # 获取表单数据
         data = request.form
-        print("原始表单数据:", data)  # 调试标记
+        print("原始表单数据:", request.form)  # 调试标记
 
         task_name = data.get('task-name', '').strip()
         task_points_str = data.get('task-points', '').strip()
-
+        task_kind = data.get('type', '').strip()
         # 验证数据
         if not task_name:
             raise BadRequest('任务名称不能为空')
@@ -118,7 +103,7 @@ def add_task():
         # 业务逻辑
         task_points = int(task_points_str)
         username = session['username']
-        create_task(username, task_name, task_points)
+        create_task(username, task_name, task_points, task_kind)
 
         return jsonify({'status': 'success', 'message': '任务添加成功'})
 
@@ -299,7 +284,9 @@ def records_date_range():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     selection = request.args.get('selection')
-    print(request.args)
+
+    if not start_date:
+        start_date = '1990-01-01'
     page = int(request.args.get('page', 1))
     pageSize = 12  # 与前端保持一致
     start = (page - 1) * pageSize
@@ -312,10 +299,12 @@ def records_date_range():
     if not success:
         return jsonify({'total': total, 'data': data, 'message': records})
     # 将字符串日期转换为datetime对象
-    print("\n", type(start_date), end_date, "!!!")
     start_date = datetime.strptime(start_date, '%Y-%m-%d')
-    end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
+    if not end_date:
+        end_date = datetime.today().date()
+    else:
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+    print(start_date, end_date)
     # 获取记录和总记录数
     records, total = get_records_by_date_range(records, start_date, end_date, selection)
     if not success:
@@ -348,6 +337,35 @@ def claim_achievement():
     return jsonify({'status': 'success', 'message': result, 'current_points': current_points}), 200
 
 
+# ==================== 计时器路由 =====================
+
+@app.route('/start', methods=['POST'])
+def start():
+    data = request.json
+    session['start_time'] = data['start_time']
+    session['is_counting_up'] = data['is_counting_up']
+    session['duration'] = data['duration']
+    return jsonify({'status': 'started'})
+
+
+@app.route('/stop', methods=['POST'])
+def stop():
+    elapsed_time = request.json['elapsed_time']
+    if session.get('is_counting_up'):
+        print(f"正计时：花费的时间是 {elapsed_time}")
+    else:
+        print(f"倒计时：消耗的时间是 {session['duration'] - elapsed_time}")
+    return jsonify({'status': 'stopped'})
+
+
+@app.route('/reset', methods=['POST'])
+def reset():
+    session.pop('start_time', None)
+    session.pop('is_counting_up', None)
+    session.pop('duration', None)
+    return jsonify({'status': 'reset'})
+
+
 # ==================== 分页功能路由 ====================
 # 分页数据获取路由
 @app.route('/records_paginate', methods=['GET'])
@@ -376,6 +394,21 @@ def wishes_paginate():
     if not success:
         result = []
     data = get_paginated_data(result, page, pageSize)
+    total = len(result)
+    return jsonify({'data': data, 'total': total})
+
+
+@app.route('/achievements_paginate', methods=['GET'])
+def achievements_paginate():
+    page = request.args.get('page', 1, type=int)
+    pageSize = 12
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    username = session['username']
+    result = get_sorted_achievements(username)
+    data = get_paginated_data(result, page, pageSize)
+    print("data:")
+    print(data)
     total = len(result)
     return jsonify({'data': data, 'total': total})
 

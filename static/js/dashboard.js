@@ -10,7 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    form.addEventListener('submit', handleSubmit); // 绑定事件
+    form.addEventListener('submit', (e) => handleSubmit(e, 'day')); // 绑定事件
+});
+
+// 周计划表单提交监听
+document.addEventListener('DOMContentLoaded', () => {
+    const weekForm = document.getElementById('todo-week-form');
+    if (weekForm) {
+        weekForm.addEventListener('submit', (e) => handleSubmit(e, 'week'));
+    }
+});
+
+// 月计划表单提交监听
+document.addEventListener('DOMContentLoaded', () => {
+    const monthForm = document.getElementById('todo-month-form');
+    if (monthForm) {
+        monthForm.addEventListener('submit', (e) => handleSubmit(e, 'month'));
+    }
 });
 
 // 侧边栏切换功能
@@ -65,10 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.status === 'success') {
                     alert(data.result); // 使用 alert 显示 result
                     // 检查后端返回的数据中的success字段
-                        // 假设后端返回的data中包含了新的积分值
-                            currentPoints += data.checkin_point;
-                            console.log(currentPoints)
-                        updatePointsDisplay(); // 更新积分显示
+                    // 假设后端返回的data中包含了新的积分值
+                    currentPoints += data.checkin_point;
+                    console.log(currentPoints)
+                    updatePointsDisplay(); // 更新积分显示
 
                 }
             })
@@ -87,12 +103,13 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 表单提交监听
-function handleSubmit(e) {
+function handleSubmit(e,type) {
     e.preventDefault();
     console.log('表单提交触发'); // 调试标记
 
     const form = e.target;
     const formData = new FormData(form);
+    formData.append('type', type); // 添加type到formData
 
     // 发送请求
     fetch('/add-task', {
@@ -107,7 +124,13 @@ function handleSubmit(e) {
         .then(result => {
             if (result.status === 'success') {
                 // 动态添加任务项
-                addTodoItem(formData.get('task-name'), formData.get('task-points'));
+                if(type ==='day'){
+                    addTodoItem(formData.get('task-name'), formData.get('task-points'),'todo-list');
+                }else if (type === 'week') {
+                    addTodoItem(formData.get('task-name'), formData.get('task-points'), 'todo-week-list');
+                } else if (type === 'month') {
+                    addTodoItem(formData.get('task-name'), formData.get('task-points') ,'todo-month-list');
+                }
                 form.reset();
             } else {
                 showError(result.message);
@@ -119,7 +142,7 @@ function handleSubmit(e) {
 }
 
 // 添加任务到列表
-function addTodoItem(name, points) {
+function addTodoItem(name, points,listId) {
     const li = document.createElement('li');
     li.innerHTML = `
         <input type="checkbox" class="task-checkbox">
@@ -127,7 +150,7 @@ function addTodoItem(name, points) {
         <span class="task-points-badge">+${points}分</span>
         <button class="delete-btn">×</button>
     `;
-    document.getElementById('todo-list').appendChild(li);
+    document.getElementById(listId).appendChild(li);
 }
 
 // 错误提示
@@ -230,4 +253,5 @@ document.addEventListener('DOMContentLoaded', function () {
         currentPointsElement.textContent = currentPoints;
     }
 });
+
 

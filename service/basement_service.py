@@ -8,11 +8,26 @@ from functools import wraps
 from dbutils.pooled_db import PooledDB
 
 # ==================== 数据库连接池配置 ====================
+
+# # wifi连接
+# pool = PooledDB(
+#     creator=pymysql,
+#     maxconnections=5,  # 连接池最大连接数
+#     host='192.168.5.31',
+#     port=3306,
+#     user='gjy',
+#     password='776868312',
+#     database='studyproject',
+#     charset='utf8mb4',
+#     cursorclass=pymysql.cursors.DictCursor
+# )
+# tailscale连接
 pool = PooledDB(
     creator=pymysql,
     maxconnections=5,  # 连接池最大连接数
-    host='localhost',
-    user='root',
+    host='100.86.50.79',
+    port=3306,
+    user='gjy',
     password='776868312',
     database='studyproject',
     charset='utf8mb4',
@@ -81,7 +96,7 @@ def get_user(username, password):
     with get_cursor() as cursor:
         cursor.execute(sql, (username, password))
         result = cursor.fetchone()
-        return result, None
+        return result
 
 
 @handle_db_errors
@@ -98,7 +113,7 @@ def get_user_by_username(username: str) -> Tuple[bool, Union[Dict, str]]:
     """获取用户信息"""
     with get_cursor() as cursor:
         cursor.execute("""
-            SELECT  username, points ,streak_day, all_day
+            SELECT  username, points ,streak_day, all_day,all_points,all_task,challenge_day,wishes_completed
             FROM user
             WHERE username = %s
         """, (username,))
@@ -120,7 +135,7 @@ def update_user_points(username: str, points: int) -> Tuple[bool, str]:
 
 # ==================== 任务服务 ====================
 @handle_db_errors
-def create_task(username: str, title: str, points: int) -> Tuple[bool, Union[int, str]]:
+def create_task(username: str, title: str, points: int, kind: str) -> Tuple[bool, Union[int, str]]:
     """创建新任务"""
     # 参数校验
     validate_str_field(title, "任务标题", 200)
@@ -130,8 +145,8 @@ def create_task(username: str, title: str, points: int) -> Tuple[bool, Union[int
     with get_cursor() as cursor:
         sql = """
             INSERT INTO task (
-                username, title, points, created_at,is_delete,deleted_at,is_completed,completed_at
-            ) VALUES (%s, %s, %s, %s,%s ,%s, %s, %s)
+                username, title, points, created_at,is_delete,deleted_at,is_completed,completed_at, kind
+            ) VALUES (%s, %s, %s, %s,%s ,%s, %s, %s,%s)
         """
         cursor.execute(sql, (
             username,
@@ -141,7 +156,8 @@ def create_task(username: str, title: str, points: int) -> Tuple[bool, Union[int
             0,
             None,
             0,
-            None
+            None,
+            kind
         ))
         return True, cursor.lastrowid
 
@@ -170,9 +186,9 @@ def update_task_status(username: str, task_id: int, completed: bool) -> Tuple[bo
             """, (1, datetime.now(), task_id))
 
             cursor.execute("""
-            INSERT INTO record (username, task_title, point, finish_time, finish_date)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (username, task['title'], task['points'], datetime.now(), today))
+            INSERT INTO record (username, task_title, point, finish_time, finish_date,kind)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (username, task['title'], task['points'], datetime.now(), today, task['kind']+"任务获取"))
 
         else:
             cursor.execute("""
@@ -188,11 +204,14 @@ def update_task_status(username: str, task_id: int, completed: bool) -> Tuple[bo
 
         # 更新用户积分
         points_change = task['points'] if completed else -task['points']
+        task_change = 1 if completed else -1
         cursor.execute("""
             UPDATE user 
-            SET points = points + %s 
+            SET points = points + %s ,
+                all_points = all_points + %s,
+                all_task = all_task + %s
             WHERE username = %s
-        """, (points_change, username))
+        """, (points_change, points_change, task_change, username))
 
         return True, "任务状态更新成功"
 
@@ -223,16 +242,25 @@ def soft_delete_task(username: str, task_id: str) -> Tuple[bool, str]:
 
 
 @handle_db_errors
-def get_tasks(username: str, include_deleted: bool = False) -> Tuple[bool, Union[List[Dict], str]]:
+def get_tasks(username: str, kind: str = None, include_deleted: bool = False, ) -> Tuple[bool, Union[List[Dict], str]]:
     """获取用户任务列表"""
     with get_cursor() as cursor:
-        sql = """
-                SELECT id, title, points, is_completed,
-                       created_at, completed_at
-                FROM task
-                WHERE username = %s
-            """
-        params = [username, ]
+        if kind is None:
+            sql = """
+                    SELECT id, title, points, is_completed,
+                           created_at, completed_at,kind
+                    FROM task
+                    WHERE username = %s
+                """
+            params = [username]
+        else:
+            sql = """
+                    SELECT id, title, points, is_completed,
+                           created_at, completed_at,kind
+                    FROM task
+                    WHERE username = %s AND kind = %s
+                """
+            params = [username, kind]
         if not include_deleted:
             sql += " AND is_delete = 0"
 
@@ -499,12 +527,16 @@ def redeem_wish_service(username: str, points: int, wishid: str, wishName: str) 
 def get_achievements(username: str) -> Tuple[bool, Union[List[Dict], str]]:
     with get_cursor() as cursor:
         sql = """
-                SELECT id, title, point, conditions, kinds,got
+                SELECT id, title, point, conditions, kinds,got,description
                 FROM achievement
             """
         params = []
         cursor.execute(sql, params)
         achievements = cursor.fetchall()
+        if achievements:
+            for achievement in achievements:
+                if achievement['got'] is None:
+                    achievement['got'] = json.dumps({})
         success, user = get_user_by_username(username)
         if not success:
             return False, "get_achievements没有查询到用户"
@@ -521,6 +553,22 @@ def get_achievements(username: str) -> Tuple[bool, Union[List[Dict], str]]:
                     achievement['conditions'] = '已满足条件'
                 else:
                     achievement['conditions'] = str(user['all_day']) + ' / ' + str(achievement['conditions'])
+            if achievement['kinds'] == "task_number":
+                if achievement['conditions'] <= user['all_task']:
+                    achievement['conditions'] = '已满足条件'
+                else:
+                    achievement['conditions'] = str(user['all_task']) + ' / ' + str(achievement['conditions'])
+            if achievement['kinds'] == "points_number":
+                if achievement['conditions'] <= user['all_points']:
+                    achievement['conditions'] = '已满足条件'
+                else:
+                    achievement['conditions'] = str(user['all_points']) + ' / ' + str(achievement['conditions'])
+
+            if achievement['kinds'] == "early_bird":
+                if achievement['conditions'] <= user['all_points']:
+                    achievement['conditions'] = '已满足条件'
+                else:
+                    achievement['conditions'] = str(user['all_points']) + ' / ' + str(achievement['conditions'])
             got_json_str = achievement['got']
 
             # 将 JSON 字符串转换为字典
@@ -537,7 +585,7 @@ def get_achievements(username: str) -> Tuple[bool, Union[List[Dict], str]]:
 def get_achievement_by_id(achievement_id: str) -> Tuple[bool, Union[List[Dict], str]]:
     with get_cursor() as cursor:
         sql = """
-                SELECT id, title, point, conditions, kinds,got
+                SELECT id, title, point, conditions, kinds,got,description
                 FROM achievement
                 WHERE id = %s
             """
@@ -547,6 +595,23 @@ def get_achievement_by_id(achievement_id: str) -> Tuple[bool, Union[List[Dict], 
         if not achievements:
             return False, "没有查询到成就"
         return True, achievements
+
+
+def get_sorted_achievements(username: str) -> List[Dict]:
+    success, achievements = get_achievements(username)
+    if success is False:
+        return []
+    sorted_achievements = []
+    for achievement in achievements:
+        if achievement['conditions'] == '已满足条件' and achievement['is_success'] is False:
+            sorted_achievements.append(achievement)
+    for achievement in achievements:
+        if achievement['conditions'] != '已满足条件':
+            sorted_achievements.append(achievement)
+    for achievement in achievements:
+        if achievement['conditions'] == '已满足条件' and achievement['is_success'] is True:
+            sorted_achievements.append(achievement)
+    return sorted_achievements
 
 
 @handle_db_errors
@@ -720,7 +785,17 @@ def get_records_by_date_range(records: list, start_date: datetime, end_date: dat
     if not records:
         return False, "用户没有更多记录"  # 失败时返回False和错误消息
     if selection == "all":
-        print(selection)
+        records = records
+    elif selection == "increase":
+        success, records = get_add_points_records(records)
+        if not success:
+            return False, records
+    elif selection == "decrease":
+        success, records = get_deduct_points_records(records)
+        if not success:
+            return False, records
+    else:
+        return False, "get_records_by_date_range选择错误！"
     start_datetime = datetime.combine(start_date, time.min)
     end_datetime = datetime.combine(end_date, time.max)
 
@@ -733,8 +808,6 @@ def get_records_by_date_range(records: list, start_date: datetime, end_date: dat
     else:
         return False, "日期之间用户没有记录"  # 失败时返回False和错误消息
 
-
-# ==================== 分页任务 ====================
 
 # 分页数据获取函数
 def get_paginated_data(data, page, per_page):
@@ -751,5 +824,7 @@ def empty_task() -> Tuple[bool, str]:
             UPDATE task 
             SET is_completed = 0,
                 completed_at = NULL
-        """)
+            WHERE kind = %s
+        """, ("day",))
         return True, "所有任务状态已重置为未完成"
+
